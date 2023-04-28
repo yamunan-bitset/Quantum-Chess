@@ -1,0 +1,56 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>b0dcf152-089e-4640-ad85-ea460344e8d1</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>PythonChess.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>PythonChess</Name>
+    <RootNamespace>PythonChess</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="PythonChess.py" />
+    <Compile Include="StockfishAPI.py" />
+    <Compile Include="texture\black\Board.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="texture\" />
+    <Folder Include="texture\black\" />
+    <Folder Include="texture\white\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="texture\black\bishop.png" />
+    <Content Include="texture\black\king.png" />
+    <Content Include="texture\black\knight.png" />
+    <Content Include="texture\black\pawn.png" />
+    <Content Include="texture\black\queen.png" />
+    <Content Include="texture\black\rook.png" />
+    <Content Include="texture\white\bishop.png" />
+    <Content Include="texture\white\king.png" />
+    <Content Include="texture\white\knight.png" />
+    <Content Include="texture\white\pawn.png" />
+    <Content Include="texture\white\queen.png" />
+    <Content Include="texture\white\rook.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>

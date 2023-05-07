@@ -3,7 +3,7 @@ import os
 from math import floor
 from pprint import pprint
 
-from StockfishAPI import get_next_fen, play_best
+from StockfishAPI import get_next_fen, play_best, Eval
 
 piece_imgs = {
     "bp": pygame.image.load("texture\\black\\pawn.png"),
@@ -43,6 +43,9 @@ class Board:
         self.selected_square_2 = (None, None)
         self.moves = []
         self.half_move = False
+        
+        self.thread = Eval(self.fen)
+        self.thread.start()
 
         self.check_square = (None, None)
 
@@ -65,7 +68,7 @@ class Board:
                 if self.board[i][j] == "--":
                     continue
                 
-                if self.fen.split(" ")[4] == "1":
+                if self.thread.pos_eval == "+":
                     if self.board[i][j] == self.fen.split(" ")[1] + "K":
                         self.squares[i][j].colour = (100, 0, 0)
                         self.check_square = (i, j)
@@ -90,6 +93,8 @@ class Board:
             if self.check_square != (None, None):
                 self.squares[self.check_square[0]][self.check_square[1]].colour = (226, 204, 180) if (self.check_square[0] + self.check_square[1]) % 2 == 0 else (159, 115, 95)
             pprint(self.board)
+
+            self.thread.load_fen(self.fen)
                     
 
 
@@ -121,6 +126,7 @@ class Board:
                 self.squares[self.check_square[0]][self.check_square[1]].colour = (226, 204, 180) if (self.check_square[0] + self.check_square[1]) % 2 == 0 else (159, 115, 95)
             pprint(self.board)
             self.half_move = False
+            self.thread.load_fen(self.fen)
         else:
             if self.squares[x][y].selected == False:
                 if self.board[x][y] != "--":

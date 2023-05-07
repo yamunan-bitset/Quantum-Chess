@@ -1,8 +1,9 @@
 import pygame
 import os
 from math import floor
+from pprint import pprint
 
-from StockfishAPI import check_legal, get_next_fen
+from StockfishAPI import get_next_fen, play_best
 
 piece_imgs = {
     "bp": pygame.image.load("texture\\black\\pawn.png"),
@@ -24,6 +25,9 @@ for i in piece_imgs:
 
 l = "abcdefgh"
 
+C_COLOUR = "b"
+P_COLOUR = "w"
+
 class Board:
     def __init__(self, surface, cols, rows):
         self.surface = surface
@@ -36,7 +40,11 @@ class Board:
         self.load_fen(self.fen)
 
         self.selected_square = (None, None)
-        self.move = ""
+        self.selected_square_2 = (None, None)
+        self.moves = []
+        self.half_move = False
+
+        self.check_square = (None, None)
 
         for i in range(self.cols):
             self.squares.append([])
@@ -56,8 +64,32 @@ class Board:
                 
                 if self.board[i][j] == "--":
                     continue
-
+                
+                if self.fen.split(" ")[4] == "1":
+                    if self.board[i][j] == self.fen.split(" ")[1] + "K":
+                        self.squares[i][j].colour = (100, 0, 0)
+                        self.check_square = (i, j)
                 self.surface.blit(piece_imgs[self.board[i][j]], (j * 80, i * 80))
+
+    def c_play(self):
+        if self.fen.split(" ")[1] == C_COLOUR:
+            c_move = play_best(self.fen, self.moves, 5000)
+            self.moves.append(c_move)
+            self.squares[self.selected_square[0]][self.selected_square[1]].colour = (226, 204, 180) if (self.selected_square[0] + self.selected_square[1]) % 2 == 0 else (159, 115, 95)
+            self.squares[self.selected_square[0]][self.selected_square[1]].selected = False
+            self.squares[self.selected_square_2[0]][self.selected_square_2[1]].colour = (226, 204, 180) if (self.selected_square_2[0] + self.selected_square_2[1]) % 2 == 0 else (159, 115, 95)
+            self.squares[self.selected_square_2[0]][self.selected_square_2[1]].selected = False
+            self.selected_square = (8 - int(c_move[1]), l.index(c_move[0]))
+            self.selected_square_2 = (8 - int(c_move[3]), l.index(c_move[2]))
+            self.squares[self.selected_square[0]][self.selected_square[1]].colour = (100, 255, 100)
+            self.squares[self.selected_square[0]][self.selected_square[1]].selected = True
+            self.squares[self.selected_square_2[0]][self.selected_square_2[1]].colour = (100, 255, 100)
+            self.squares[self.selected_square_2[0]][self.selected_square_2[1]].selected = True
+            move = get_next_fen(self.fen, self.moves)
+            self.load_fen(move)
+            if self.check_square != (None, None):
+                self.squares[self.check_square[0]][self.check_square[1]].colour = (226, 204, 180) if (self.check_square[0] + self.check_square[1]) % 2 == 0 else (159, 115, 95)
+            pprint(self.board)
                     
 
 
@@ -65,23 +97,47 @@ class Board:
         x = floor(position[1]/80)
         y = floor(position[0]/80)
 
-        if self.selected_square != (None, None):
-            self.move += l[y]
-            self.move += str(8 - x)
-            print(self.move)
-            if check_legal(self.fen, self.move):
-                self.fen = get_next_fen(self.fen, self.move)
-                pass
-            self.selected_square = (None, None)
-            self.move = ""
+        if self.half_move:
+            temp = l[y]
+            temp += str(8 - x)
+            self.squares[x][y].colour = (100, 255, 100)
+            self.squares[x][y].selected = True
+            self.selected_square_2 = (x, y)
+            self.moves[len(self.moves)-1] += temp
+            print(self.moves)
+            move = get_next_fen(self.fen, self.moves)
+            if move is None:
+                self.squares[self.selected_square[0]][self.selected_square[1]].colour = (226, 204, 180) if (self.selected_square[0] + self.selected_square[1]) % 2 == 0 else (159, 115, 95)
+                self.squares[self.selected_square[0]][self.selected_square[1]].selected = False
+                self.squares[self.selected_square_2[0]][self.selected_square_2[1]].colour = (226, 204, 180) if (self.selected_square_2[0] + self.selected_square_2[1]) % 2 == 0 else (159, 115, 95)
+                self.squares[self.selected_square_2[0]][self.selected_square_2[1]].selected = False
+                self.selected_square = (None, None)
+                self.selected_square_2 = (None, None)
+                self.moves.pop()
+                self.half_move = False
+                return
+            self.load_fen(move)
+            if self.check_square != (None, None):
+                self.squares[self.check_square[0]][self.check_square[1]].colour = (226, 204, 180) if (self.check_square[0] + self.check_square[1]) % 2 == 0 else (159, 115, 95)
+            pprint(self.board)
+            self.half_move = False
         else:
             if self.squares[x][y].selected == False:
                 if self.board[x][y] != "--":
-                    if self.board[x][y][0] == self.fen.split(" ")[1]:
-                        self.squares[x][y].colour = (100, 255, 255)
+                    #if self.board[x][y][0] == self.fen.split(" ")[1]:
+                    if self.board[x][y][0] == P_COLOUR:
                         self.squares[x][y].selected = True
+                        self.squares[x][y].colour = (100, 255, 100)
+                        if self.selected_square != (None, None):
+                            self.squares[self.selected_square[0]][self.selected_square[1]].colour = (226, 204, 180) if (self.selected_square[0] + self.selected_square[1]) % 2 == 0 else (159, 115, 95)
+                            self.squares[self.selected_square[0]][self.selected_square[1]].selected = False
+                        if self.selected_square_2 != (None, None):
+                            self.squares[self.selected_square_2[0]][self.selected_square_2[1]].colour = (226, 204, 180) if (self.selected_square_2[0] + self.selected_square_2[1]) % 2 == 0 else (159, 115, 95)
+                            self.squares[self.selected_square_2[0]][self.selected_square_2[1]].selected = False
                         self.selected_square = (x, y)
-                        self.move = l[y] + str(8 - x)
+                        self.moves.append(l[y] + str(8 - x))
+                        self.half_move = True
+                        
             else:
                 self.squares[x][y].colour = (159, 115, 95) if (x + y) % 2 == 0 else (226, 204, 180)
                 self.squares[x][y].selected = False
@@ -100,9 +156,9 @@ class Board:
         for row in self.fen.split('/'):
             brow = []
             for c in row:
-                if c == ' ':
+                if c == " ":
                     break
-                elif c in '12345678':
+                if c in '12345678':
                     brow.extend(['--'] * int(c))
                 elif c == 'p':
                     brow.append('bp')

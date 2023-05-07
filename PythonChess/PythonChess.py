@@ -24,6 +24,7 @@ while win_open:
             board.select(pos)
 
     board.render()
-
     pygame.display.update()
+
+    board.c_play()
 

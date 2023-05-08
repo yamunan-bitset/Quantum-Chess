@@ -49,6 +49,8 @@ class Board:
 
         self.check_square = (None, None)
 
+        self.quit = False
+
         for i in range(self.cols):
             self.squares.append([])
             for j in range(self.rows):
@@ -75,26 +77,27 @@ class Board:
                 self.surface.blit(piece_imgs[self.board[i][j]], (j * 80, i * 80))
 
     def c_play(self):
-        if self.fen.split(" ")[1] == C_COLOUR:
-            c_move = play_best(self.fen, self.moves, 5000)
-            self.moves.append(c_move)
-            self.squares[self.selected_square[0]][self.selected_square[1]].colour = (226, 204, 180) if (self.selected_square[0] + self.selected_square[1]) % 2 == 0 else (159, 115, 95)
-            self.squares[self.selected_square[0]][self.selected_square[1]].selected = False
-            self.squares[self.selected_square_2[0]][self.selected_square_2[1]].colour = (226, 204, 180) if (self.selected_square_2[0] + self.selected_square_2[1]) % 2 == 0 else (159, 115, 95)
-            self.squares[self.selected_square_2[0]][self.selected_square_2[1]].selected = False
-            self.selected_square = (8 - int(c_move[1]), l.index(c_move[0]))
-            self.selected_square_2 = (8 - int(c_move[3]), l.index(c_move[2]))
-            self.squares[self.selected_square[0]][self.selected_square[1]].colour = (100, 255, 100)
-            self.squares[self.selected_square[0]][self.selected_square[1]].selected = True
-            self.squares[self.selected_square_2[0]][self.selected_square_2[1]].colour = (100, 255, 100)
-            self.squares[self.selected_square_2[0]][self.selected_square_2[1]].selected = True
-            move = get_next_fen(self.fen, self.moves)
-            self.load_fen(move)
-            if self.check_square != (None, None):
-                self.squares[self.check_square[0]][self.check_square[1]].colour = (226, 204, 180) if (self.check_square[0] + self.check_square[1]) % 2 == 0 else (159, 115, 95)
-            pprint(self.board)
+        while not self.quit:
+            if self.fen.split(" ")[1] == C_COLOUR:
+                c_move = play_best(self.fen, self.moves, depth=25)
+                self.moves.append(c_move)
+                self.squares[self.selected_square[0]][self.selected_square[1]].colour = (226, 204, 180) if (self.selected_square[0] + self.selected_square[1]) % 2 == 0 else (159, 115, 95)
+                self.squares[self.selected_square[0]][self.selected_square[1]].selected = False
+                self.squares[self.selected_square_2[0]][self.selected_square_2[1]].colour = (226, 204, 180) if (self.selected_square_2[0] + self.selected_square_2[1]) % 2 == 0 else (159, 115, 95)
+                self.squares[self.selected_square_2[0]][self.selected_square_2[1]].selected = False
+                self.selected_square = (8 - int(c_move[1]), l.index(c_move[0]))
+                self.selected_square_2 = (8 - int(c_move[3]), l.index(c_move[2]))
+                self.squares[self.selected_square[0]][self.selected_square[1]].colour = (100, 255, 100)
+                self.squares[self.selected_square[0]][self.selected_square[1]].selected = True
+                self.squares[self.selected_square_2[0]][self.selected_square_2[1]].colour = (100, 255, 100)
+                self.squares[self.selected_square_2[0]][self.selected_square_2[1]].selected = True
+                move = get_next_fen(self.fen, self.moves)
+                self.load_fen(move)
+                if self.check_square != (None, None):
+                    self.squares[self.check_square[0]][self.check_square[1]].colour = (226, 204, 180) if (self.check_square[0] + self.check_square[1]) % 2 == 0 else (159, 115, 95)
+                pprint(self.board)
 
-            self.thread.load_fen(self.fen)
+                self.thread.load_fen(self.fen)
                     
 
 

@@ -1,7 +1,13 @@
+"""
+from StockfishAPI import test
+test()
+"""
 import pygame
 pygame.init()
 
 from Board import Board
+
+import threading
 
 logo = pygame.image.load("texture\\black\\knight.png")
 pygame.display.set_icon(logo)
@@ -13,12 +19,16 @@ screen.fill((100, 100, 100))
 font = pygame.font.SysFont(None, 36)
 
 board = Board(screen, 8, 8)
+thread = threading.Thread(target=board.c_play, daemon=True)
+thread.start()
 
 win_open = True
 while win_open:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            board.quit = True
             board.thread.kill()
+            thread.join()
             win_open = False
             break
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -34,5 +44,4 @@ while win_open:
     screen.blit(evaluation, (640, 0))
     
     pygame.display.update()
-    board.c_play()
 

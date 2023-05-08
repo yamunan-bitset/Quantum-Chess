@@ -5,6 +5,7 @@ import sys
 #import winpexpect
 import wexpect
 import threading
+import time
 
 
 class Eval(threading.Thread):
@@ -36,17 +37,24 @@ class Eval(threading.Thread):
 
     
 
-def play_best(fen, moves, time):
+def play_best(fen, moves, time=None, depth=None):
     child = wexpect.spawn("stockfish-windows-2022-x86-64-avx2.exe")
     child.sendline("position startpos moves " + " ".join(moves))
-    child.sendline(f"go movetime {time}")
+    if time == None:
+        child.sendline(f"go depth {depth}")
+    else:
+        child.sendline(f"go movetime {time}")
+
+    child.expect("bestmove ")
     child.sendline("quit")
+
     out = child.read()
+    print(out)
     try:
-        return out.split("\n")[len(out.split("\n"))-2].split(" ")[1]
+        return out.split("\n")[0].split(" ")[0]
     except:
         # TODO
-        print(out.split("\n")[len(out.split("\n"))-2].split(" "))
+        print(out)
         quit()
 
 def get_next_fen(fen, moves):
@@ -67,8 +75,9 @@ def test():
     #print(os.popen("stockfish-windows-2022-x86-64-avx2.exe position startpos moves e2e4 d").read())
     child = wexpect.spawn("stockfish-windows-2022-x86-64-avx2.exe")
     child.sendline("position startpos moves")
-    child.sendline("d")
+    child.sendline("go movetime 5000")
+    #time.sleep(5000)
+    child.expect("bestmove ")
     child.sendline("quit")
     fen = child.read()
     print(fen)
-    print(fen.split("Fen: ")[1].split("\n")[0])

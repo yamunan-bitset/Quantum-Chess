@@ -7,11 +7,12 @@ class Board:
         self.screen = screen
         self.font = pygame.font.SysFont(None, 30)
 
-        self.board = []
         self.squares = [[]]
 
         self.selected = None
         self.selected2 = None
+
+        self.legal = []
 
         for i in range(8):
             self.squares.append([])
@@ -34,7 +35,7 @@ class Board:
             self.screen.blit(self.font.render(numbers[i], True, (183, 183, 183)), (2, i * 60 + 40))
             self.screen.blit(self.font.render(letters[i], True, (183, 183, 183)), (i * 60 + 40, 500))
 
-    def select(self, pos):
+    def select(self, pos, pieces):
         x = floor(pos[1] / 60)
         y = floor(pos[0] / 60)
 
@@ -46,6 +47,10 @@ class Board:
 
         self.squares[x][y].selected = True
         self.selected = (x, y)
+
+        self.legal = pieces.analysis.legal_moves(x, y)
+        for i in self.legal:
+            self.squares[i[0]][i[1]].moveable = True
 
         return self.selected
 
@@ -66,6 +71,11 @@ class Board:
             self.squares[self.selected[0]][self.selected[1]].selected = False
             return None, None
 
+        for i in self.legal:
+            self.squares[i[0]][i[1]].moveable = False
+
+        self.legal = []
+
         self.squares[x][y].selected = True
         self.selected2 = (x, y)
 
@@ -79,10 +89,17 @@ class Square:
         self.curr_colour = self.colour
         self.rect = pygame.Rect(rect)
         self.selected = False
+        self.moveable = False
 
     def draw(self):
         if self.selected:
             self.curr_colour = (42, 64, 83)
         else:
             self.curr_colour = self.colour
+
+        if self.moveable:
+            self.curr_colour = (208, 77, 0)
+        else:
+            self.curr_colour = self.colour
+
         pygame.draw.rect(self.surface, self.curr_colour, self.rect)

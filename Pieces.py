@@ -69,6 +69,7 @@ class Pieces:
             self.selected = None
             if not self.analysis.move_made:
                 return False
+            pprint(self.board)
             return True
 
         self.selected = None

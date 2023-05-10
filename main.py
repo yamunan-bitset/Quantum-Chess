@@ -26,7 +26,7 @@ while True:
             pos = pygame.mouse.get_pos()
             button = pygame.mouse
             pieces.mouse_pos = pos
-            index = board.select(pos)
+            index = board.select(pos, pieces)
             if not pieces.select(*index):
                 board.unselect()
                 ignore = True

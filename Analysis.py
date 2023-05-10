@@ -22,8 +22,7 @@ class Analysis:
             if j != 0 and self.board[i + 1][j - 1] is not None and self.board[i + 1][j - 1] >= 6:
                 moves.append((i + 1, j - 1))
             if self.prev_move is not None:
-                print(self.prev_move)
-                if self.board[self.prev_move[2]][self.prev_move[3]] == 6 and self.prev_move[0] == 6 and self.prev_move[2] == 4:
+                if self.board[self.prev_move[2]][self.prev_move[3]] == 6 and self.prev_move[0] == 6 and self.prev_move[2] == 4 and i == 4:
                     if self.prev_move[3] == j + 1:
                         moves.append((i + 1, j + 1, "epr"))
                     elif self.prev_move[3] == j - 1:
@@ -41,8 +40,7 @@ class Analysis:
             if j != 7 and self.board[i - 1][j + 1] is not None and self.board[i - 1][j + 1] < 6:
                 moves.append((i - 1, j + 1))
             if self.prev_move is not None:
-                print(self.prev_move)
-                if self.board[self.prev_move[2]][self.prev_move[3]] == 0 and self.prev_move[0] == 1 and self.prev_move[2] == 3:
+                if self.board[self.prev_move[2]][self.prev_move[3]] == 0 and self.prev_move[0] == 1 and self.prev_move[2] == 3 and i == 3:
                     if self.prev_move[3] == j + 1:
                         moves.append((i - 1, j + 1, "epr"))
                     elif self.prev_move[3] == j - 1:

@@ -1,7 +1,8 @@
 import os
-from time import time
 import pygame
 from pprint import pprint
+
+import Analysis
 
 piece_imgs = [
     pygame.image.load(os.path.join("texture", "black", "pawn.png")),
@@ -23,13 +24,13 @@ class Pieces:
     def __init__(self, screen, fen):
         self.screen = screen
 
+        self.selected = None
+        self.mouse_pos = None
+
         print(f"Loading fen {fen}")
-        t0 = time()
         self.board = Pieces.load_fen(fen)
-        t1 = time()
-        print("Loaded fen: ")
+        self.analysis = Analysis.Analysis(self.board)
         pprint(self.board)
-        print(f"In {t1 - t0} s")
 
     @staticmethod
     def load_fen(fen):
@@ -51,6 +52,25 @@ class Pieces:
         for i in range(8):
             for j in range(8):
                 if self.board[i][j] is not None:
-                    self.screen.blit(piece_imgs[self.board[i][j]], (j * 60 + 15, i * 60 + 15))
+                    if self.selected != (i, j):
+                        self.screen.blit(piece_imgs[self.board[i][j]], (j * 60 + 15, i * 60 + 15))
+                    else:
+                        self.screen.blit(piece_imgs[self.board[i][j]], (self.mouse_pos[0] - 30, self.mouse_pos[1] - 30))
 
+    def select(self, i, j):
+        if self.board[i][j] is not None:
+            self.selected = (i, j)
+            return True
+        return False
+
+    def drop(self, i, j):
+        if i is not None and j is not None:
+            self.board = self.analysis.move(*self.selected, i, j)
+            self.selected = None
+            if not self.analysis.move_made:
+                return False
+            return True
+
+        self.selected = None
+        return False
 

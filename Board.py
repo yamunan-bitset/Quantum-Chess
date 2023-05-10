@@ -1,5 +1,6 @@
 import pygame
-from time import time
+from math import floor
+
 
 class Board:
     def __init__(self, screen):
@@ -8,6 +9,9 @@ class Board:
 
         self.board = []
         self.squares = [[]]
+
+        self.selected = None
+        self.selected2 = None
 
         for i in range(8):
             self.squares.append([])
@@ -24,26 +28,61 @@ class Board:
         letters = "abcdefgh"
         numbers = "12345678"
 
-        t0 = time()
         for i in range(8):
             for j in range(8):
                 self.squares[i][j].draw()
             self.screen.blit(self.font.render(numbers[i], True, (183, 183, 183)), (2, i * 60 + 40))
             self.screen.blit(self.font.render(letters[i], True, (183, 183, 183)), (i * 60 + 40, 500))
-        t1 = time()
 
-        render_dt = t1 - t0
-        self.screen.blit(self.font.render(f"{render_dt=} s", True, (183, 183, 183)), (500, 15))
+    def select(self, pos):
+        x = floor(pos[1] / 60)
+        y = floor(pos[0] / 60)
 
+        if self.selected is not None and self.selected2 is not None:
+            self.squares[self.selected[0]][self.selected[1]].selected = False
+            self.squares[self.selected2[0]][self.selected2[1]].selected = False
+
+        self.selected2 = None
+
+        self.squares[x][y].selected = True
+        self.selected = (x, y)
+
+        return self.selected
+
+    def unselect(self):
+        if self.selected is not None:
+            self.squares[self.selected[0]][self.selected[1]].selected = False
+            self.selected = None
+        if self.selected2 is not None:
+            self.squares[self.selected2[0]][self.selected2[1]].selected = False
+            self.selected2 = None
+
+
+    def drop(self, pos):
+        x = floor(pos[1] / 60)
+        y = floor(pos[0] / 60)
+
+        if x > 8 or y > 8:
+            self.squares[self.selected[0]][self.selected[1]].selected = False
+            return None, None
+
+        self.squares[x][y].selected = True
+        self.selected2 = (x, y)
+
+        return self.selected2
 
 
 class Square:
     def __init__(self, surface, rect, colour):
         self.surface = surface
         self.colour = colour
+        self.curr_colour = self.colour
         self.rect = pygame.Rect(rect)
         self.selected = False
 
     def draw(self):
-        pygame.draw.rect(self.surface, self.colour, self.rect)
-
+        if self.selected:
+            self.curr_colour = (42, 64, 83)
+        else:
+            self.curr_colour = self.colour
+        pygame.draw.rect(self.surface, self.curr_colour, self.rect)

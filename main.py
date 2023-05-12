@@ -13,7 +13,9 @@ screen = pygame.display.set_mode((1000, 800))
 screen.fill((36, 34, 30))
 
 board = Board.Board(screen)
-pieces = Pieces.Pieces(screen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+
+startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+pieces = Pieces.Pieces(screen, startpos)
 
 ignore = False
 

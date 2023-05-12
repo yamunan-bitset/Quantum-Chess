@@ -58,6 +58,8 @@ class Pieces:
                         self.screen.blit(piece_imgs[self.board[i][j]], (self.mouse_pos[0] - 30, self.mouse_pos[1] - 30))
 
     def select(self, i, j):
+        if i is None or j is None:
+            return False
         if self.board[i][j] is not None:
             self.selected = (i, j)
             return True

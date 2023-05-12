@@ -39,6 +39,9 @@ class Board:
         x = floor(pos[1] / 60)
         y = floor(pos[0] / 60)
 
+        if x < 0 or x > 7 or y < 0 or y > 7:
+            return None, None
+
         if self.selected is not None and self.selected2 is not None:
             self.squares[self.selected[0]][self.selected[1]].selected = False
             self.squares[self.selected2[0]][self.selected2[1]].selected = False
@@ -97,9 +100,10 @@ class Square:
         else:
             self.curr_colour = self.colour
 
-        if self.moveable:
-            self.curr_colour = (208, 77, 0)
-        else:
-            self.curr_colour = self.colour
-
         pygame.draw.rect(self.surface, self.curr_colour, self.rect)
+
+        if self.moveable:
+            image = pygame.Surface([60, 60], pygame.SRCALPHA, 32)
+            image = image.convert_alpha()
+            image.fill((152, 105, 29, 150))
+            self.surface.blit(image, (self.rect.x, self.rect.y))

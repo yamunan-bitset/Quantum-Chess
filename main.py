@@ -46,7 +46,7 @@ while True:
 
 
     screen.fill((36, 34, 30))
-    board.render()
+    board.render(pieces.analysis)
     pieces.mouse_pos = pygame.mouse.get_pos()
     pieces.render()
     pygame.display.update()

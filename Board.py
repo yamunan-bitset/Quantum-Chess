@@ -25,7 +25,7 @@ class Board:
                     )
                 )
 
-    def render(self):
+    def render(self, analysis):
         letters = "abcdefgh"
         numbers = "12345678"
 
@@ -34,6 +34,8 @@ class Board:
                 self.squares[i][j].draw()
             self.screen.blit(self.font.render(numbers[i], True, (183, 183, 183)), (2, i * 60 + 40))
             self.screen.blit(self.font.render(letters[i], True, (183, 183, 183)), (i * 60 + 40, 500))
+
+        self.screen.blit(self.font.render("Eval: " + str(float(analysis.evaluation)), True, (183, 183, 183)), (500, 15))
 
     def select(self, pos, pieces):
         x = floor(pos[1] / 60)
@@ -64,7 +66,6 @@ class Board:
         if self.selected2 is not None:
             self.squares[self.selected2[0]][self.selected2[1]].selected = False
             self.selected2 = None
-
 
     def drop(self, pos):
         x = floor(pos[1] / 60)

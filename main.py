@@ -15,7 +15,7 @@ screen.fill((36, 34, 30))
 board = Board.Board(screen)
 
 startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-pieces = Pieces.Pieces(screen, "3qk3/8/8/8/8/8/8/4K3 w - - 0 1")
+pieces = Pieces.Pieces(screen, startpos)
 
 ignore = False
 

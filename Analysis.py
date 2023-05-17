@@ -11,7 +11,6 @@ class Analysis:
         self.move_made = False
         self.prev_move = None
 
-        # TODO: Castling into check
         self.b_rook1_moved = False
         self.w_rook1_moved = False
         self.b_rook2_moved = False
@@ -21,6 +20,9 @@ class Analysis:
 
         self.w_king_in_check = False
         self.b_king_in_check = False
+
+        self.check_mate = False
+        self.stale_mate = False
 
         self.evaluation = 0
         self.evaluate()
@@ -62,7 +64,6 @@ class Analysis:
             if board[i][j] >= 6 and self.turn == "b":
                 return moves
 
-        # TODO: Pieces movements: Ensure pieces don't cause check
         if board[i][j] == 0:
             # black pawn
 
@@ -482,7 +483,6 @@ class Analysis:
                 else:
                     moves.append((i - k - 1, j + k + 1))
 
-        # TODO: King movements: Check, Checkmate, Castle into checks, Run into checks, In front of king
         if board[i][j] == 4:
             # black king
             if not self.b_king_moved and not self.b_rook1_moved:
@@ -729,6 +729,143 @@ class Analysis:
 
     def check_for_walk_into_check(self, i, j, moves):
         board = deepcopy(self.board)
+        to_remove = []
+        for k in moves:
+            opp_moves = []
+            for x in range(8):
+                for y in range(8):
+                    if board[x][y] is not None:
+                        if board[k[0]][k[1]] == 10:
+                            if board[x][y] > 6:
+                                opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
+                        else:
+                            if board[x][y] <= 6:
+                                opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
+            if "w0-0" in k:
+                for m in opp_moves:
+                    if (7, 4) in m or (7, 5) in m or (7, 6) in m:
+                        if k in moves:
+                            to_remove.append(k)
+                board[7][4] = None
+                board[7][5] = 7
+                board[7][6] = 10
+                board[7][7] = None
+
+            elif "w0-0-0" in k:
+                for m in opp_moves:
+                    if (7, 4) in m or (7, 3) in m or (7, 2) in m or (7, 1) in m:
+                        if k in moves:
+                            to_remove.append(k)
+                board[7][4] = None
+                board[7][3] = 7
+                board[7][2] = 10
+                board[7][1] = None
+                board[7][0] = None
+
+            elif "b0-0" in k:
+                for m in opp_moves:
+                    if (0, 4) in m or (0, 5) in m or (0, 6) in m:
+                        if k in moves:
+                            to_remove.append(k)
+                board[0][4] = None
+                board[0][5] = 1
+                board[0][6] = 4
+                board[0][7] = None
+
+            elif "b0-0-0" in k:
+                for m in opp_moves:
+                    if (0, 4) in m or (0, 3) in m or (0, 2) in m or (0, 1) in m:
+                        if k in moves:
+                            to_remove.append(k)
+                board[0][4] = None
+                board[0][3] = 1
+                board[0][2] = 4
+                board[0][1] = None
+                board[0][0] = None
+
+            elif "epr" in k:
+                temp = board[i][j]
+
+                board[i][j + 1] = None
+
+                board[k[0]][k[1]] = temp
+                board[i][j] = None
+                if board[k[0]][k[1]] == 0 and k[0] == 7:
+                    board[k[0]][k[1]] = 5
+                if board[k[0]][k[1]] == 6 and k[0] == 0:
+                    board[k[0]][k[1]] = 11
+
+            elif "epl" in k:
+                temp = board[i][j]
+
+                board[i][j - 1] = None
+
+                board[k[0]][k[1]] = temp
+                board[i][j] = None
+                if board[k[0]][k[1]] == 0 and k[0] == 7:
+                    board[k[0]][k[1]] = 5
+                if board[k[0]][k[1]] == 6 and k[0] == 0:
+                    board[k[0]][k[1]] = 11
+
+            else:
+                temp = board[i][j]
+                board[k[0]][k[1]] = temp
+                board[i][j] = None
+                if board[k[0]][k[1]] == 0 and k[0] == 7:
+                    board[k[0]][k[1]] = 5
+                if board[k[0]][k[1]] == 6 and k[0] == 0:
+                    board[k[0]][k[1]] = 11
+
+            opp_moves = []
+            if board[k[0]][k[1]] is not None and (board[k[0]][k[1]] == 10 or board[k[0]][k[1]] == 4):
+                for x in range(8):
+                    for y in range(8):
+                        if board[x][y] is not None:
+                            if board[k[0]][k[1]] == 10:
+                                if board[x][y] < 6:
+                                    opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
+                            else:
+                                if board[x][y] >= 6:
+                                    opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
+
+                for m in opp_moves:
+                    if k in m:
+                        if k in moves:
+                            to_remove.append(k)
+
+            board = deepcopy(self.board)
+
+        for k in to_remove:
+            if k in moves:
+                moves.remove(k)
+
+        return moves
+
+    def check_for_king_in_check(self, i, j, board=None):
+        if board is None:
+            board = self.board
+
+        opp_moves = []
+        if board[i][j] is not None and (board[i][j] == 10 or board[i][j] == 4):
+            for x in range(8):
+                for y in range(8):
+                    if board[x][y] is not None:
+                        if board[i][j] == 10:
+                            if board[x][y] < 6:
+                                opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
+                        else:
+                            if board[x][y] >= 6:
+                                opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
+
+            for m in opp_moves:
+                if (i, j) in m:
+                    return True
+
+        return False
+
+    def check_for_fork(self, i, j, moves):
+        board = deepcopy(self.board)
+        to_remove = []
         for k in moves:
             if "w0-0" in k:
                 board[7][4] = None
@@ -788,74 +925,34 @@ class Analysis:
                     board[k[0]][k[1]] = 5
                 if board[k[0]][k[1]] == 6 and k[0] == 0:
                     board[k[0]][k[1]] = 11
-                    
-            opp_moves = []
-            if board[k[0]][k[1]] is not None and (board[k[0]][k[1]] == 10 or board[k[0]][k[1]] == 4):
-                for x in range(8):
-                    for y in range(8):
-                        if board[x][y] is not None:
-                            if board[k[0]][k[1]] == 10:
-                                if board[x][y] < 6:
-                                    opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
-                            else:
-                                if board[x][y] >= 6:
-                                    opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
 
-                for m in opp_moves:
-                    if (k[0], k[1]) in m:
-                        moves.remove(k)
 
-            board = deepcopy(self.board)
+            for l in range(8):
+                for m in range(8):
+                    if self.turn == "w":
+                        if board[l][m] == 10:
+                            if self.check_for_king_in_check(l, m, board=board):
+                                to_remove.append(k)
+                    else:
+                        if board[l][m] == 4:
+                            if self.check_for_king_in_check(l, m, board=board):
+                                to_remove.append(k)
+
+        for k in to_remove:
+            if k in moves:
+                moves.remove(k)
+
         return moves
 
-    def check_for_king_in_check(self, i, j):
-        opp_moves = []
-        if self.board[i][j] is not None and (self.board[i][j] == 10 or self.board[i][j] == 4):
-            for x in range(8):
-                for y in range(8):
-                    if self.board[x][y] is not None:
-
-                        if self.board[i][j] == 10:
-                            if self.board[x][y] < 6:
-                                opp_moves.append(self.pseudo_legal_moves(x, y, ignore_turn=True))
-                        else:
-                            if self.board[x][y] >= 6:
-                                opp_moves.append(self.pseudo_legal_moves(x, y, ignore_turn=True))
-
-            for m in opp_moves:
-                if (i, j) in m:
-                    return True
-
-        return False
-
-    def check_for_fork(self, i, j, moves):
-        return moves
-
-    def check_for_mate(self, i, j, moves):
-        opp_moves = []
-        if self.board[i][j] is not None and (self.board[i][j] == 10 or self.board[i][j] == 4):
-            for x in range(8):
-                for y in range(8):
-                    if self.board[x][y] is not None:
-
-                        if self.board[i][j] == 10:
-                            if self.board[x][y] < 6:
-                                opp_moves.append(self.pseudo_legal_moves(x, y, ignore_turn=True))
-                        else:
-                            if self.board[x][y] >= 6:
-                                opp_moves.append(self.pseudo_legal_moves(x, y, ignore_turn=True))
-
-            for l in moves:
-                for m in opp_moves:
-                    if l not in m:
-                        return False
-
-        return True
-
-    def legal_moves(self, i, j):
-        legal_moves = self.pseudo_legal_moves(i, j)
+    # TODO: King movements: Block check
+    def legal_moves(self, i, j, ignore_turn=False):
+        legal_moves = self.pseudo_legal_moves(i, j, ignore_turn=ignore_turn)
         legal_moves = self.check_for_walk_into_check(i, j, legal_moves)
         legal_moves = self.check_for_fork(i, j, legal_moves)
+
+        if len(legal_moves) == 0:
+            if self.check_for_king_in_check(i, j):
+                self.check_mate = True
 
         return legal_moves
 
@@ -1000,19 +1097,28 @@ class Analysis:
             else:
                 self.turn = "w"
 
+
+        total_legal_moves = []
         for i in range(8):
             for j in range(8):
                 if self.board[i][j] is not None:
                     if self.board[i][j] == 10:
                         self.w_king_in_check = self.check_for_king_in_check(i, j)
-                        if self.check_for_mate(i, j, self.legal_moves(i, j)):
-                            print("check mate, white won")
-                            break
+                        new_legal_moves = self.legal_moves(i, j)
+                        if len(new_legal_moves) == 0:
+                            if self.w_king_in_check:
+                                self.check_mate = True
                     elif self.board[i][j] == 4:
                         self.b_king_in_check = self.check_for_king_in_check(i, j)
-                        if self.check_for_mate(i, j, self.legal_moves(i, j)):
-                            print("check mate, black won")
-                            break
+                        new_legal_moves = self.legal_moves(i, j)
+                        if len(new_legal_moves) == 0:
+                            if self.b_king_in_check:
+                                self.check_mate = True
+
+                    total_legal_moves.append(self.legal_moves(i, j, ignore_turn=True))
+
+        if len(total_legal_moves) == 0:
+            self.stale_mate = True
 
         self.evaluate()
 

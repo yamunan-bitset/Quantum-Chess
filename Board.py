@@ -51,9 +51,26 @@ class Board:
         if self.mouse_pos is not None:
             x = floor(self.mouse_pos[0] / 60) * 60
             y = floor(self.mouse_pos[1] / 60) * 60
-            pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect(x + 15, y + 15, 60, 60), 2)
+            if 0 <= x / 60 <= 7 and 0 <= y / 60 <= 7:
+                pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect(x + 15, y + 15, 60, 60), 2)
 
         self.screen.blit(self.font.render("Eval: " + str(float(analysis.evaluation)), True, (183, 183, 183)), (500, 15))
+
+        if analysis.check_mate:
+            colour = ""
+            if analysis.turn == "b":
+                colour = "White won, 1-0"
+            else:
+                colour = "Black won, 0-1"
+
+            self.screen.blit(self.font.render("Check mate", True, (183, 183, 183)), (500, 50))
+            self.screen.blit(self.font.render(colour, True, (183, 183, 183)), (500, 75))
+
+        if analysis.stale_mate:
+            self.screen.blit(self.font.render("Stale mate", True, (183, 183, 183)), (500, 50))
+            self.screen.blit(self.font.render("Draw 1/2-1/2", True, (183, 183, 183)), (500, 75))
+
+
 
     def select(self, pos, pieces):
         x = floor(pos[1] / 60)
@@ -89,7 +106,7 @@ class Board:
         x = floor(pos[1] / 60)
         y = floor(pos[0] / 60)
 
-        if x > 8 or y > 8:
+        if x > 7 or y > 7 or x < 0 or y < 0:
             self.squares[self.selected[0]][self.selected[1]].selected = False
             return None, None
 

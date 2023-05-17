@@ -1,3 +1,6 @@
+from pprint import pprint
+from copy import deepcopy
+
 
 class Analysis:
     def __init__(self, board):
@@ -15,6 +18,9 @@ class Analysis:
         self.w_rook2_moved = False
         self.b_king_moved = False
         self.w_king_moved = False
+
+        self.w_king_in_check = False
+        self.b_king_in_check = False
 
         self.evaluation = 0
         self.evaluate()
@@ -41,61 +47,66 @@ class Analysis:
                     elif j == 11:
                         self.evaluation += 9
 
-
-    def legal_moves(self, i, j):
+    def pseudo_legal_moves(self, i, j, board=None, ignore_turn=False):
         moves = []
 
-        if self.board[i][j] is None:
+        if board is None:
+            board = self.board
+
+        if board[i][j] is None:
             return moves
 
-        if self.board[i][j] < 6 and self.turn == "w":
-            return moves
-        if self.board[i][j] >= 6 and self.turn == "b":
-            return moves
+        if not ignore_turn:
+            if board[i][j] < 6 and self.turn == "w":
+                return moves
+            if board[i][j] >= 6 and self.turn == "b":
+                return moves
 
         # TODO: Pieces movements: Ensure pieces don't cause check
-        if self.board[i][j] == 0:
+        if board[i][j] == 0:
             # black pawn
 
-            if self.board[i + 1][j] is None:
+            if board[i + 1][j] is None:
                 moves.append((i + 1, j))
             if i == 1:
-                if self.board[i + 2][j] is None:
+                if board[i + 1][j] is None and board[i + 2][j] is None:
                     moves.append((i + 2, j))
-            if j != 7 and self.board[i + 1][j + 1] is not None and self.board[i + 1][j + 1] >= 6:
+            if j != 7 and board[i + 1][j + 1] is not None and board[i + 1][j + 1] >= 6:
                 moves.append((i + 1, j + 1))
-            if j != 0 and self.board[i + 1][j - 1] is not None and self.board[i + 1][j - 1] >= 6:
+            if j != 0 and board[i + 1][j - 1] is not None and board[i + 1][j - 1] >= 6:
                 moves.append((i + 1, j - 1))
             if self.prev_move is not None:
-                if self.board[self.prev_move[2]][self.prev_move[3]] == 6 and self.prev_move[0] == 6 and self.prev_move[2] == 4 and i == 4:
+                if board[self.prev_move[2]][self.prev_move[3]] == 6 and self.prev_move[0] == 6 and self.prev_move[
+                    2] == 4 and i == 4:
                     if self.prev_move[3] == j + 1:
                         moves.append((i + 1, j + 1, "epr"))
                     elif self.prev_move[3] == j - 1:
                         moves.append((i + 1, j - 1, "epl"))
 
-        if self.board[i][j] == 6:
+        if board[i][j] == 6:
             # white pawn
-            if self.board[i - 1][j] is None:
+            if board[i - 1][j] is None:
                 moves.append((i - 1, j))
             if i == 6:
-                if self.board[i - 2][j] is None:
+                if board[i - 1][j] is None and board[i - 2][j] is None:
                     moves.append((i - 2, j))
-            if j != 0 and self.board[i - 1][j - 1] is not None and self.board[i - 1][j - 1] < 6:
+            if j != 0 and board[i - 1][j - 1] is not None and board[i - 1][j - 1] < 6:
                 moves.append((i - 1, j - 1))
-            if j != 7 and self.board[i - 1][j + 1] is not None and self.board[i - 1][j + 1] < 6:
+            if j != 7 and board[i - 1][j + 1] is not None and board[i - 1][j + 1] < 6:
                 moves.append((i - 1, j + 1))
             if self.prev_move is not None:
-                if self.board[self.prev_move[2]][self.prev_move[3]] == 0 and self.prev_move[0] == 1 and self.prev_move[2] == 3 and i == 3:
+                if board[self.prev_move[2]][self.prev_move[3]] == 0 and self.prev_move[0] == 1 and self.prev_move[
+                    2] == 3 and i == 3:
                     if self.prev_move[3] == j + 1:
                         moves.append((i - 1, j + 1, "epr"))
                     elif self.prev_move[3] == j - 1:
                         moves.append((i - 1, j - 1, "epl"))
 
-        if self.board[i][j] == 1:
+        if board[i][j] == 1:
             # black rook
             for _j in range(7 - j):
-                if self.board[i][j + _j + 1] is not None:
-                    if self.board[i][j + _j + 1] >= 6:
+                if board[i][j + _j + 1] is not None:
+                    if board[i][j + _j + 1] >= 6:
                         moves.append((i, j + _j + 1))
                         break
                     else:
@@ -104,8 +115,8 @@ class Analysis:
                     moves.append((i, j + _j + 1))
 
             for _j in range(j):
-                if self.board[i][j - _j - 1] is not None:
-                    if self.board[i][j - _j - 1] >= 6:
+                if board[i][j - _j - 1] is not None:
+                    if board[i][j - _j - 1] >= 6:
                         moves.append((i, j - _j - 1))
                         break
                     else:
@@ -114,8 +125,8 @@ class Analysis:
                     moves.append((i, j - _j - 1))
 
             for _i in range(7 - i):
-                if self.board[i + _i + 1][j] is not None:
-                    if self.board[i + _i + 1][j] >= 6:
+                if board[i + _i + 1][j] is not None:
+                    if board[i + _i + 1][j] >= 6:
                         moves.append((i + _i + 1, j))
                         break
                     else:
@@ -124,8 +135,8 @@ class Analysis:
                     moves.append((i + _i + 1, j))
 
             for _i in range(i):
-                if self.board[i - _i - 1][j] is not None:
-                    if self.board[i - _i - 1][j] >= 6:
+                if board[i - _i - 1][j] is not None:
+                    if board[i - _i - 1][j] >= 6:
                         moves.append((i - _i - 1, j))
                         break
                     else:
@@ -133,11 +144,11 @@ class Analysis:
                 else:
                     moves.append((i - _i - 1, j))
 
-        if self.board[i][j] == 7:
+        if board[i][j] == 7:
             # white rook
             for _j in range(7 - j):
-                if self.board[i][j + _j + 1] is not None:
-                    if self.board[i][j + _j + 1] < 6:
+                if board[i][j + _j + 1] is not None:
+                    if board[i][j + _j + 1] < 6:
                         moves.append((i, j + _j + 1))
                         break
                     else:
@@ -146,8 +157,8 @@ class Analysis:
                     moves.append((i, j + _j + 1))
 
             for _j in range(j):
-                if self.board[i][j - _j - 1] is not None:
-                    if self.board[i][j - _j - 1] < 6:
+                if board[i][j - _j - 1] is not None:
+                    if board[i][j - _j - 1] < 6:
                         moves.append((i, j - _j - 1))
                         break
                     else:
@@ -156,8 +167,8 @@ class Analysis:
                     moves.append((i, j - _j - 1))
 
             for _i in range(7 - i):
-                if self.board[i + _i + 1][j] is not None:
-                    if self.board[i + _i + 1][j] < 6:
+                if board[i + _i + 1][j] is not None:
+                    if board[i + _i + 1][j] < 6:
                         moves.append((i + _i + 1, j))
                         break
                     else:
@@ -166,8 +177,8 @@ class Analysis:
                     moves.append((i + _i + 1, j))
 
             for _i in range(i):
-                if self.board[i - _i - 1][j] is not None:
-                    if self.board[i - _i - 1][j] < 6:
+                if board[i - _i - 1][j] is not None:
+                    if board[i - _i - 1][j] < 6:
                         moves.append((i - _i - 1, j))
                         break
                     else:
@@ -175,14 +186,14 @@ class Analysis:
                 else:
                     moves.append((i - _i - 1, j))
 
-        if self.board[i][j] == 3:
+        if board[i][j] == 3:
             # black bishop
             for k in range(7):
                 if i + k == 7 or j + k == 7:
                     break
 
-                if self.board[i + k + 1][j + k + 1] is not None:
-                    if self.board[i + k + 1][j + k + 1] >= 6:
+                if board[i + k + 1][j + k + 1] is not None:
+                    if board[i + k + 1][j + k + 1] >= 6:
                         moves.append((i + k + 1, j + k + 1))
                         break
                     else:
@@ -194,8 +205,8 @@ class Analysis:
                 if i - k == 0 or j - k == 0:
                     break
 
-                if self.board[i - k - 1][j - k - 1] is not None:
-                    if self.board[i - k - 1][j - k - 1] >= 6:
+                if board[i - k - 1][j - k - 1] is not None:
+                    if board[i - k - 1][j - k - 1] >= 6:
                         moves.append((i - k - 1, j - k - 1))
                         break
                     else:
@@ -207,8 +218,8 @@ class Analysis:
                 if i + k == 7 or j - k == 0:
                     break
 
-                if self.board[i + k + 1][j - k - 1] is not None:
-                    if self.board[i + k + 1][j - k - 1] >= 6:
+                if board[i + k + 1][j - k - 1] is not None:
+                    if board[i + k + 1][j - k - 1] >= 6:
                         moves.append((i + k + 1, j - k - 1))
                         break
                     else:
@@ -220,8 +231,8 @@ class Analysis:
                 if i - k == 0 or j + k == 7:
                     break
 
-                if self.board[i - k - 1][j + k + 1] is not None:
-                    if self.board[i - k - 1][j + k + 1] >= 6:
+                if board[i - k - 1][j + k + 1] is not None:
+                    if board[i - k - 1][j + k + 1] >= 6:
                         moves.append((i - k - 1, j + k + 1))
                         break
                     else:
@@ -229,14 +240,14 @@ class Analysis:
                 else:
                     moves.append((i - k - 1, j + k + 1))
 
-        if self.board[i][j] == 9:
+        if board[i][j] == 9:
             # white bishop
             for k in range(7):
                 if i + k == 7 or j + k == 7:
                     break
 
-                if self.board[i + k + 1][j + k + 1] is not None:
-                    if self.board[i + k + 1][j + k + 1] < 6:
+                if board[i + k + 1][j + k + 1] is not None:
+                    if board[i + k + 1][j + k + 1] < 6:
                         moves.append((i + k + 1, j + k + 1))
                         break
                     else:
@@ -248,8 +259,8 @@ class Analysis:
                 if i - k == 0 or j - k == 0:
                     break
 
-                if self.board[i - k - 1][j - k - 1] is not None:
-                    if self.board[i - k - 1][j - k - 1] < 6:
+                if board[i - k - 1][j - k - 1] is not None:
+                    if board[i - k - 1][j - k - 1] < 6:
                         moves.append((i - k - 1, j - k - 1))
                         break
                     else:
@@ -261,8 +272,8 @@ class Analysis:
                 if i + k == 7 or j - k == 0:
                     break
 
-                if self.board[i + k + 1][j - k - 1] is not None:
-                    if self.board[i + k + 1][j - k - 1] < 6:
+                if board[i + k + 1][j - k - 1] is not None:
+                    if board[i + k + 1][j - k - 1] < 6:
                         moves.append((i + k + 1, j - k - 1))
                         break
                     else:
@@ -274,8 +285,8 @@ class Analysis:
                 if i - k == 0 or j + k == 7:
                     break
 
-                if self.board[i - k - 1][j + k + 1] is not None:
-                    if self.board[i - k - 1][j + k + 1] < 6:
+                if board[i - k - 1][j + k + 1] is not None:
+                    if board[i - k - 1][j + k + 1] < 6:
                         moves.append((i - k - 1, j + k + 1))
                         break
                     else:
@@ -283,11 +294,11 @@ class Analysis:
                 else:
                     moves.append((i - k - 1, j + k + 1))
 
-        if self.board[i][j] == 5:
+        if board[i][j] == 5:
             # black queen
             for _j in range(7 - j):
-                if self.board[i][j + _j + 1] is not None:
-                    if self.board[i][j + _j + 1] >= 6:
+                if board[i][j + _j + 1] is not None:
+                    if board[i][j + _j + 1] >= 6:
                         moves.append((i, j + _j + 1))
                         break
                     else:
@@ -296,8 +307,8 @@ class Analysis:
                     moves.append((i, j + _j + 1))
 
             for _j in range(j):
-                if self.board[i][j - _j - 1] is not None:
-                    if self.board[i][j - _j - 1] >= 6:
+                if board[i][j - _j - 1] is not None:
+                    if board[i][j - _j - 1] >= 6:
                         moves.append((i, j - _j - 1))
                         break
                     else:
@@ -306,8 +317,8 @@ class Analysis:
                     moves.append((i, j - _j - 1))
 
             for _i in range(7 - i):
-                if self.board[i + _i + 1][j] is not None:
-                    if self.board[i + _i + 1][j] >= 6:
+                if board[i + _i + 1][j] is not None:
+                    if board[i + _i + 1][j] >= 6:
                         moves.append((i + _i + 1, j))
                         break
                     else:
@@ -316,8 +327,8 @@ class Analysis:
                     moves.append((i + _i + 1, j))
 
             for _i in range(i):
-                if self.board[i - _i - 1][j] is not None:
-                    if self.board[i - _i - 1][j] >= 6:
+                if board[i - _i - 1][j] is not None:
+                    if board[i - _i - 1][j] >= 6:
                         moves.append((i - _i - 1, j))
                         break
                     else:
@@ -329,8 +340,8 @@ class Analysis:
                 if i + k == 7 or j + k == 7:
                     break
 
-                if self.board[i + k + 1][j + k + 1] is not None:
-                    if self.board[i + k + 1][j + k + 1] >= 6:
+                if board[i + k + 1][j + k + 1] is not None:
+                    if board[i + k + 1][j + k + 1] >= 6:
                         moves.append((i + k + 1, j + k + 1))
                         break
                     else:
@@ -342,8 +353,8 @@ class Analysis:
                 if i - k == 0 or j - k == 0:
                     break
 
-                if self.board[i - k - 1][j - k - 1] is not None:
-                    if self.board[i - k - 1][j - k - 1] >= 6:
+                if board[i - k - 1][j - k - 1] is not None:
+                    if board[i - k - 1][j - k - 1] >= 6:
                         moves.append((i - k - 1, j - k - 1))
                         break
                     else:
@@ -355,8 +366,8 @@ class Analysis:
                 if i + k == 7 or j - k == 0:
                     break
 
-                if self.board[i + k + 1][j - k - 1] is not None:
-                    if self.board[i + k + 1][j - k - 1] >= 6:
+                if board[i + k + 1][j - k - 1] is not None:
+                    if board[i + k + 1][j - k - 1] >= 6:
                         moves.append((i + k + 1, j - k - 1))
                         break
                     else:
@@ -368,8 +379,8 @@ class Analysis:
                 if i - k == 0 or j + k == 7:
                     break
 
-                if self.board[i - k - 1][j + k + 1] is not None:
-                    if self.board[i - k - 1][j + k + 1] >= 6:
+                if board[i - k - 1][j + k + 1] is not None:
+                    if board[i - k - 1][j + k + 1] >= 6:
                         moves.append((i - k - 1, j + k + 1))
                         break
                     else:
@@ -377,11 +388,11 @@ class Analysis:
                 else:
                     moves.append((i - k - 1, j + k + 1))
 
-        if self.board[i][j] == 11:
+        if board[i][j] == 11:
             # white queen
             for _j in range(7 - j):
-                if self.board[i][j + _j + 1] is not None:
-                    if self.board[i][j + _j + 1] < 6:
+                if board[i][j + _j + 1] is not None:
+                    if board[i][j + _j + 1] < 6:
                         moves.append((i, j + _j + 1))
                         break
                     else:
@@ -390,8 +401,8 @@ class Analysis:
                     moves.append((i, j + _j + 1))
 
             for _j in range(j):
-                if self.board[i][j - _j - 1] is not None:
-                    if self.board[i][j - _j - 1] < 6:
+                if board[i][j - _j - 1] is not None:
+                    if board[i][j - _j - 1] < 6:
                         moves.append((i, j - _j - 1))
                         break
                     else:
@@ -400,8 +411,8 @@ class Analysis:
                     moves.append((i, j - _j - 1))
 
             for _i in range(7 - i):
-                if self.board[i + _i + 1][j] is not None:
-                    if self.board[i + _i + 1][j] < 6:
+                if board[i + _i + 1][j] is not None:
+                    if board[i + _i + 1][j] < 6:
                         moves.append((i + _i + 1, j))
                         break
                     else:
@@ -410,8 +421,8 @@ class Analysis:
                     moves.append((i + _i + 1, j))
 
             for _i in range(i):
-                if self.board[i - _i - 1][j] is not None:
-                    if self.board[i - _i - 1][j] < 6:
+                if board[i - _i - 1][j] is not None:
+                    if board[i - _i - 1][j] < 6:
                         moves.append((i - _i - 1, j))
                         break
                     else:
@@ -423,8 +434,8 @@ class Analysis:
                 if i + k == 7 or j + k == 7:
                     break
 
-                if self.board[i + k + 1][j + k + 1] is not None:
-                    if self.board[i + k + 1][j + k + 1] < 6:
+                if board[i + k + 1][j + k + 1] is not None:
+                    if board[i + k + 1][j + k + 1] < 6:
                         moves.append((i + k + 1, j + k + 1))
                         break
                     else:
@@ -436,8 +447,8 @@ class Analysis:
                 if i - k == 0 or j - k == 0:
                     break
 
-                if self.board[i - k - 1][j - k - 1] is not None:
-                    if self.board[i - k - 1][j - k - 1] < 6:
+                if board[i - k - 1][j - k - 1] is not None:
+                    if board[i - k - 1][j - k - 1] < 6:
                         moves.append((i - k - 1, j - k - 1))
                         break
                     else:
@@ -449,8 +460,8 @@ class Analysis:
                 if i + k == 7 or j - k == 0:
                     break
 
-                if self.board[i + k + 1][j - k - 1] is not None:
-                    if self.board[i + k + 1][j - k - 1] < 6:
+                if board[i + k + 1][j - k - 1] is not None:
+                    if board[i + k + 1][j - k - 1] < 6:
                         moves.append((i + k + 1, j - k - 1))
                         break
                     else:
@@ -462,8 +473,8 @@ class Analysis:
                 if i - k == 0 or j + k == 7:
                     break
 
-                if self.board[i - k - 1][j + k + 1] is not None:
-                    if self.board[i - k - 1][j + k + 1] < 6:
+                if board[i - k - 1][j + k + 1] is not None:
+                    if board[i - k - 1][j + k + 1] < 6:
                         moves.append((i - k - 1, j + k + 1))
                         break
                     else:
@@ -472,252 +483,386 @@ class Analysis:
                     moves.append((i - k - 1, j + k + 1))
 
         # TODO: King movements: Check, Checkmate, Castle into checks, Run into checks, In front of king
-        if self.board[i][j] == 4:
+        if board[i][j] == 4:
             # black king
             if not self.b_king_moved and not self.b_rook1_moved:
-                if self.board[0][5] is None and self.board[0][6] is None:
+                if board[0][5] is None and board[0][6] is None:
                     moves.append((0, 7, "b0-0"))
             if not self.b_king_moved and not self.b_rook2_moved:
-                if self.board[0][3] is None and self.board[0][2] is None and self.board[0][1] is None:
+                if board[0][3] is None and board[0][2] is None and board[0][1] is None:
                     moves.append((0, 0, "b0-0-0"))
 
             if i + 1 <= 7:
-                if self.board[i + 1][j] is None:
+                if board[i + 1][j] is None:
                     moves.append((i + 1, j))
                 else:
-                    if self.board[i + 1][j] >= 6:
+                    if board[i + 1][j] >= 6:
                         moves.append((i + 1, j))
 
             if i - 1 >= 0:
-                if self.board[i - 1][j] is None:
+                if board[i - 1][j] is None:
                     moves.append((i - 1, j))
                 else:
-                    if self.board[i - 1][j] >= 6:
+                    if board[i - 1][j] >= 6:
                         moves.append((i - 1, j))
 
             if j + 1 <= 7:
-                if self.board[i][j + 1] is None:
+                if board[i][j + 1] is None:
                     moves.append((i, j + 1))
                 else:
-                    if self.board[i][j + 1] >= 6:
+                    if board[i][j + 1] >= 6:
                         moves.append((i, j + 1))
 
             if j - 1 >= 0:
-                if self.board[i][j - 1] is None:
+                if board[i][j - 1] is None:
                     moves.append((i, j - 1))
                 else:
-                    if self.board[i][j - 1] >= 6:
+                    if board[i][j - 1] >= 6:
                         moves.append((i, j - 1))
 
             if i + 1 <= 7 and j + 1 <= 7:
-                if self.board[i + 1][j + 1] is None:
+                if board[i + 1][j + 1] is None:
                     moves.append((i + 1, j + 1))
                 else:
-                    if self.board[i + 1][j + 1] >= 6:
+                    if board[i + 1][j + 1] >= 6:
                         moves.append((i + 1, j + 1))
 
             if i + 1 <= 7 and j - 1 >= 0:
-                if self.board[i + 1][j - 1] is None:
+                if board[i + 1][j - 1] is None:
                     moves.append((i + 1, j - 1))
                 else:
-                    if self.board[i + 1][j - 1] >= 6:
+                    if board[i + 1][j - 1] >= 6:
                         moves.append((i + 1, j - 1))
 
             if i - 1 >= 0 and j - 1 >= 0:
-                if self.board[i - 1][j - 1] is None:
+                if board[i - 1][j - 1] is None:
                     moves.append((i - 1, j - 1))
                 else:
-                    if self.board[i - 1][j - 1] >= 6:
+                    if board[i - 1][j - 1] >= 6:
                         moves.append((i - 1, j - 1))
 
             if i - 1 >= 0 and j + 1 <= 7:
-                if self.board[i - 1][j + 1] is None:
+                if board[i - 1][j + 1] is None:
                     moves.append((i - 1, j + 1))
                 else:
-                    if self.board[i - 1][j + 1] >= 6:
+                    if board[i - 1][j + 1] >= 6:
                         moves.append((i - 1, j + 1))
 
-        if self.board[i][j] == 10:
+        if board[i][j] == 10:
             # white king
             if not self.w_king_moved and not self.w_rook1_moved:
-                if self.board[7][5] is None and self.board[7][6] is None:
+                if board[7][5] is None and board[7][6] is None:
                     moves.append((7, 7, "w0-0"))
             if not self.w_king_moved and not self.w_rook2_moved:
-                if self.board[7][3] is None and self.board[7][2] is None and self.board[7][1] is None:
+                if board[7][3] is None and board[7][2] is None and board[7][1] is None:
                     moves.append((7, 0, "w0-0-0"))
 
             if i + 1 <= 7:
-                if self.board[i + 1][j] is None:
+                if board[i + 1][j] is None:
                     moves.append((i + 1, j))
                 else:
-                    if self.board[i + 1][j] < 6:
+                    if board[i + 1][j] < 6:
                         moves.append((i + 1, j))
 
             if i - 1 >= 0:
-                if self.board[i - 1][j] is None:
+                if board[i - 1][j] is None:
                     moves.append((i - 1, j))
                 else:
-                    if self.board[i - 1][j] < 6:
+                    if board[i - 1][j] < 6:
                         moves.append((i - 1, j))
 
             if j + 1 <= 7:
-                if self.board[i][j + 1] is None:
+                if board[i][j + 1] is None:
                     moves.append((i, j + 1))
                 else:
-                    if self.board[i][j + 1] < 6:
+                    if board[i][j + 1] < 6:
                         moves.append((i, j + 1))
 
             if j - 1 >= 0:
-                if self.board[i][j - 1] is None:
+                if board[i][j - 1] is None:
                     moves.append((i, j - 1))
                 else:
-                    if self.board[i][j - 1] < 6:
+                    if board[i][j - 1] < 6:
                         moves.append((i, j - 1))
 
             if i + 1 <= 7 and j + 1 <= 7:
-                if self.board[i + 1][j + 1] is None:
+                if board[i + 1][j + 1] is None:
                     moves.append((i + 1, j + 1))
                 else:
-                    if self.board[i + 1][j + 1] < 6:
+                    if board[i + 1][j + 1] < 6:
                         moves.append((i + 1, j + 1))
 
             if i + 1 <= 7 and j - 1 >= 0:
-                if self.board[i + 1][j - 1] is None:
+                if board[i + 1][j - 1] is None:
                     moves.append((i + 1, j - 1))
                 else:
-                    if self.board[i + 1][j - 1] < 6:
+                    if board[i + 1][j - 1] < 6:
                         moves.append((i + 1, j - 1))
 
             if i - 1 >= 0 and j - 1 >= 0:
-                if self.board[i - 1][j - 1] is None:
+                if board[i - 1][j - 1] is None:
                     moves.append((i - 1, j - 1))
                 else:
-                    if self.board[i - 1][j - 1] < 6:
+                    if board[i - 1][j - 1] < 6:
                         moves.append((i - 1, j - 1))
 
             if i - 1 >= 0 and j + 1 <= 7:
-                if self.board[i - 1][j + 1] is None:
+                if board[i - 1][j + 1] is None:
                     moves.append((i - 1, j + 1))
                 else:
-                    if self.board[i - 1][j + 1] < 6:
+                    if board[i - 1][j + 1] < 6:
                         moves.append((i - 1, j + 1))
 
-        if self.board[i][j] == 2:
+        if board[i][j] == 2:
             # black knight
             if i + 1 <= 7 and j + 2 <= 7:
-                if self.board[i + 1][j + 2] is None:
+                if board[i + 1][j + 2] is None:
                     moves.append((i + 1, j + 2))
                 else:
-                    if self.board[i + 1][j + 2] >= 6:
+                    if board[i + 1][j + 2] >= 6:
                         moves.append((i + 1, j + 2))
 
             if i - 1 >= 0 and j + 2 <= 7:
-                if self.board[i - 1][j + 2] is None:
+                if board[i - 1][j + 2] is None:
                     moves.append((i - 1, j + 2))
                 else:
-                    if self.board[i - 1][j + 2] >= 6:
+                    if board[i - 1][j + 2] >= 6:
                         moves.append((i - 1, j + 2))
 
             if i + 2 <= 7 and j + 1 <= 7:
-                if self.board[i + 2][j + 1] is None:
+                if board[i + 2][j + 1] is None:
                     moves.append((i + 2, j + 1))
                 else:
-                    if self.board[i + 2][j + 1] >= 6:
+                    if board[i + 2][j + 1] >= 6:
                         moves.append((i + 2, j + 1))
 
             if i + 2 <= 7 and j - 1 >= 0:
-                if self.board[i + 2][j - 1] is None:
+                if board[i + 2][j - 1] is None:
                     moves.append((i + 2, j - 1))
                 else:
-                    if self.board[i + 2][j - 1] >= 6:
+                    if board[i + 2][j - 1] >= 6:
                         moves.append((i + 2, j - 1))
             if i - 2 >= 0 and j + 1 <= 7:
-                if self.board[i - 2][j + 1] is None:
+                if board[i - 2][j + 1] is None:
                     moves.append((i - 2, j + 1))
                 else:
-                    if self.board[i - 2][j + 1] >= 6:
+                    if board[i - 2][j + 1] >= 6:
                         moves.append((i - 2, j + 1))
 
             if i + 1 <= 7 and j - 2 >= 0:
-                if self.board[i + 1][j - 2] is None:
+                if board[i + 1][j - 2] is None:
                     moves.append((i + 1, j - 2))
                 else:
-                    if self.board[i + 1][j - 2] >= 6:
+                    if board[i + 1][j - 2] >= 6:
                         moves.append((i + 1, j - 2))
             if i - 2 >= 0 and j - 1 >= 0:
-                if self.board[i - 2][j - 1] is None:
+                if board[i - 2][j - 1] is None:
                     moves.append((i - 2, j - 1))
                 else:
-                    if self.board[i - 2][j - 1] >= 6:
+                    if board[i - 2][j - 1] >= 6:
                         moves.append((i - 2, j - 1))
 
             if i - 1 >= 0 and j - 2 >= 0:
-                if self.board[i - 1][j - 2] is None:
+                if board[i - 1][j - 2] is None:
                     moves.append((i - 1, j - 2))
                 else:
-                    if self.board[i - 1][j - 2] >= 6:
+                    if board[i - 1][j - 2] >= 6:
                         moves.append((i - 1, j - 2))
 
-        if self.board[i][j] == 8:
+        if board[i][j] == 8:
             # white knight
             if i + 1 <= 7 and j + 2 <= 7:
-                if self.board[i + 1][j + 2] is None:
+                if board[i + 1][j + 2] is None:
                     moves.append((i + 1, j + 2))
                 else:
-                    if self.board[i + 1][j + 2] < 6:
+                    if board[i + 1][j + 2] < 6:
                         moves.append((i + 1, j + 2))
 
             if i - 1 >= 0 and j + 2 <= 7:
-                if self.board[i - 1][j + 2] is None:
+                if board[i - 1][j + 2] is None:
                     moves.append((i - 1, j + 2))
                 else:
-                    if self.board[i - 1][j + 2] < 6:
+                    if board[i - 1][j + 2] < 6:
                         moves.append((i - 1, j + 2))
 
             if i + 2 <= 7 and j + 1 <= 7:
-                if self.board[i + 2][j + 1] is None:
+                if board[i + 2][j + 1] is None:
                     moves.append((i + 2, j + 1))
                 else:
-                    if self.board[i + 2][j + 1] < 6:
+                    if board[i + 2][j + 1] < 6:
                         moves.append((i + 2, j + 1))
 
             if i + 2 <= 7 and j - 1 >= 0:
-                if self.board[i + 2][j - 1] is None:
+                if board[i + 2][j - 1] is None:
                     moves.append((i + 2, j - 1))
                 else:
-                    if self.board[i + 2][j - 1] < 6:
+                    if board[i + 2][j - 1] < 6:
                         moves.append((i + 2, j - 1))
             if i - 2 >= 0 and j + 1 <= 7:
-                if self.board[i - 2][j + 1] is None:
+                if board[i - 2][j + 1] is None:
                     moves.append((i - 2, j + 1))
                 else:
-                    if self.board[i - 2][j + 1] < 6:
+                    if board[i - 2][j + 1] < 6:
                         moves.append((i - 2, j + 1))
 
             if i + 1 <= 7 and j - 2 >= 0:
-                if self.board[i + 1][j - 2] is None:
+                if board[i + 1][j - 2] is None:
                     moves.append((i + 1, j - 2))
                 else:
-                    if self.board[i + 1][j - 2] < 6:
+                    if board[i + 1][j - 2] < 6:
                         moves.append((i + 1, j - 2))
             if i - 2 >= 0 and j - 1 >= 0:
-                if self.board[i - 2][j - 1] is None:
+                if board[i - 2][j - 1] is None:
                     moves.append((i - 2, j - 1))
                 else:
-                    if self.board[i - 2][j - 1] < 6:
+                    if board[i - 2][j - 1] < 6:
                         moves.append((i - 2, j - 1))
 
             if i - 1 >= 0 and j - 2 >= 0:
-                if self.board[i - 1][j - 2] is None:
+                if board[i - 1][j - 2] is None:
                     moves.append((i - 1, j - 2))
                 else:
-                    if self.board[i - 1][j - 2] < 6:
+                    if board[i - 1][j - 2] < 6:
                         moves.append((i - 1, j - 2))
 
         return moves
 
-    def move(self, i0, j0, i1, j1):
-        legal_moves = self.legal_moves(i0, j0)
+    def check_for_walk_into_check(self, i, j, moves):
+        board = deepcopy(self.board)
+        for k in moves:
+            if "w0-0" in k:
+                board[7][4] = None
+                board[7][5] = 7
+                board[7][6] = 10
+                board[7][7] = None
+
+            elif "w0-0-0" in k:
+                board[7][4] = None
+                board[7][3] = 7
+                board[7][2] = 10
+                board[7][1] = None
+                board[7][0] = None
+
+            elif "b0-0" in k:
+                board[0][4] = None
+                board[0][5] = 1
+                board[0][6] = 4
+                board[0][7] = None
+
+            elif "b0-0-0" in k:
+                board[0][4] = None
+                board[0][3] = 1
+                board[0][2] = 4
+                board[0][1] = None
+                board[0][0] = None
+
+            elif "epr" in k:
+                temp = board[i][j]
+
+                board[i][j + 1] = None
+
+                board[k[0]][k[1]] = temp
+                board[i][j] = None
+                if board[k[0]][k[1]] == 0 and k[0] == 7:
+                    board[k[0]][k[1]] = 5
+                if board[k[0]][k[1]] == 6 and k[0] == 0:
+                    board[k[0]][k[1]] = 11
+
+            elif "epl" in k:
+                temp = board[i][j]
+
+                board[i][j - 1] = None
+
+                board[k[0]][k[1]] = temp
+                board[i][j] = None
+                if board[k[0]][k[1]] == 0 and k[0] == 7:
+                    board[k[0]][k[1]] = 5
+                if board[k[0]][k[1]] == 6 and k[0] == 0:
+                    board[k[0]][k[1]] = 11
+
+            else:
+                temp = board[i][j]
+                board[k[0]][k[1]] = temp
+                board[i][j] = None
+                if board[k[0]][k[1]] == 0 and k[0] == 7:
+                    board[k[0]][k[1]] = 5
+                if board[k[0]][k[1]] == 6 and k[0] == 0:
+                    board[k[0]][k[1]] = 11
+                    
+            opp_moves = []
+            if board[k[0]][k[1]] is not None and (board[k[0]][k[1]] == 10 or board[k[0]][k[1]] == 4):
+                for x in range(8):
+                    for y in range(8):
+                        if board[x][y] is not None:
+                            if board[k[0]][k[1]] == 10:
+                                if board[x][y] < 6:
+                                    opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
+                            else:
+                                if board[x][y] >= 6:
+                                    opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
+
+                for m in opp_moves:
+                    if (k[0], k[1]) in m:
+                        moves.remove(k)
+
+            board = deepcopy(self.board)
+        return moves
+
+    def check_for_king_in_check(self, i, j):
+        opp_moves = []
+        if self.board[i][j] is not None and (self.board[i][j] == 10 or self.board[i][j] == 4):
+            for x in range(8):
+                for y in range(8):
+                    if self.board[x][y] is not None:
+
+                        if self.board[i][j] == 10:
+                            if self.board[x][y] < 6:
+                                opp_moves.append(self.pseudo_legal_moves(x, y, ignore_turn=True))
+                        else:
+                            if self.board[x][y] >= 6:
+                                opp_moves.append(self.pseudo_legal_moves(x, y, ignore_turn=True))
+
+            for m in opp_moves:
+                if (i, j) in m:
+                    return True
+
+        return False
+
+    def check_for_fork(self, i, j, moves):
+        return moves
+
+    def check_for_mate(self, i, j, moves):
+        opp_moves = []
+        if self.board[i][j] is not None and (self.board[i][j] == 10 or self.board[i][j] == 4):
+            for x in range(8):
+                for y in range(8):
+                    if self.board[x][y] is not None:
+
+                        if self.board[i][j] == 10:
+                            if self.board[x][y] < 6:
+                                opp_moves.append(self.pseudo_legal_moves(x, y, ignore_turn=True))
+                        else:
+                            if self.board[x][y] >= 6:
+                                opp_moves.append(self.pseudo_legal_moves(x, y, ignore_turn=True))
+
+            for l in moves:
+                for m in opp_moves:
+                    if l not in m:
+                        return False
+
+        return True
+
+    def legal_moves(self, i, j):
+        legal_moves = self.pseudo_legal_moves(i, j)
+        legal_moves = self.check_for_walk_into_check(i, j, legal_moves)
+        legal_moves = self.check_for_fork(i, j, legal_moves)
+
+        return legal_moves
+
+    def move(self, i0, j0, i1, j1, legal_moves=None):
+        if legal_moves is None:
+            legal_moves = self.legal_moves(i0, j0)
+
         if (i1, j1) in legal_moves:
             if self.board[i1][j1] == 1:
                 if i1 == 0 and j1 == 0:
@@ -738,7 +883,7 @@ class Analysis:
             if self.board[i1][j1] == 6 and i1 == 0:
                 self.board[i1][j1] = 11
 
-            if self.board[i0][j0] == 1:
+            if self.board[i1][j1] == 1:
                 if i0 == 0 and j0 == 0:
                     if not self.b_rook1_moved:
                         self.b_rook1_moved = True
@@ -747,7 +892,7 @@ class Analysis:
                     if not self.b_rook2_moved:
                         self.b_rook2_moved = True
 
-            if self.board[i0][j0] == 7:
+            if self.board[i1][j1] == 7:
                 if i0 == 7 and j0 == 0:
                     if not self.w_rook1_moved:
                         self.w_rook1_moved = True
@@ -756,15 +901,13 @@ class Analysis:
                     if not self.w_rook2_moved:
                         self.w_rook2_moved = True
 
-            if self.board[i0][j0] == 4:
-                if i0 == 0 and j0 == 4:
-                    if not self.b_king_moved:
-                        self.b_king_moved = True
+            if self.board[i1][j1] == 4:
+                if not self.b_king_moved:
+                    self.b_king_moved = True
 
-            if self.board[i0][j0] == 10:
-                if i0 == 7 and j0 == 4:
-                    if not self.w_king_moved:
-                        self.w_king_moved = True
+            if self.board[i1][j1] == 10:
+                if not self.b_king_moved:
+                    self.w_king_moved = True
 
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
@@ -856,6 +999,20 @@ class Analysis:
                 self.turn = "b"
             else:
                 self.turn = "w"
+
+        for i in range(8):
+            for j in range(8):
+                if self.board[i][j] is not None:
+                    if self.board[i][j] == 10:
+                        self.w_king_in_check = self.check_for_king_in_check(i, j)
+                        if self.check_for_mate(i, j, self.legal_moves(i, j)):
+                            print("check mate, white won")
+                            break
+                    elif self.board[i][j] == 4:
+                        self.b_king_in_check = self.check_for_king_in_check(i, j)
+                        if self.check_for_mate(i, j, self.legal_moves(i, j)):
+                            print("check mate, black won")
+                            break
 
         self.evaluate()
 

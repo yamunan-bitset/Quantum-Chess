@@ -5,18 +5,18 @@ from pprint import pprint
 import Analysis
 
 piece_imgs = [
-    pygame.image.load(os.path.join("texture", "black", "pawn.png")),
-    pygame.image.load(os.path.join("texture", "black", "rook.png")),
-    pygame.image.load(os.path.join("texture", "black", "knight.png")),
-    pygame.image.load(os.path.join("texture", "black", "bishop.png")),
-    pygame.image.load(os.path.join("texture", "black", "king.png")),
-    pygame.image.load(os.path.join("texture", "black", "queen.png")),
-    pygame.image.load(os.path.join("texture", "white", "pawn.png")),
-    pygame.image.load(os.path.join("texture", "white", "rook.png")),
-    pygame.image.load(os.path.join("texture", "white", "knight.png")),
-    pygame.image.load(os.path.join("texture", "white", "bishop.png")),
-    pygame.image.load(os.path.join("texture", "white", "king.png")),
-    pygame.image.load(os.path.join("texture", "white", "queen.png")),
+    pygame.image.load(os.path.join("texture", "black", "pawn.png")),    # 0
+    pygame.image.load(os.path.join("texture", "black", "rook.png")),    # 1
+    pygame.image.load(os.path.join("texture", "black", "knight.png")),  # 2
+    pygame.image.load(os.path.join("texture", "black", "bishop.png")),  # 3
+    pygame.image.load(os.path.join("texture", "black", "king.png")),    # 4
+    pygame.image.load(os.path.join("texture", "black", "queen.png")),   # 5
+    pygame.image.load(os.path.join("texture", "white", "pawn.png")),    # 6
+    pygame.image.load(os.path.join("texture", "white", "rook.png")),    # 7
+    pygame.image.load(os.path.join("texture", "white", "knight.png")),  # 8
+    pygame.image.load(os.path.join("texture", "white", "bishop.png")),  # 9
+    pygame.image.load(os.path.join("texture", "white", "king.png")),    # 10
+    pygame.image.load(os.path.join("texture", "white", "queen.png")),   # 11
 ]
 
 
@@ -27,10 +27,8 @@ class Pieces:
         self.selected = None
         self.mouse_pos = None
 
-        print(f"Loading fen {fen}")
         self.board = Pieces.load_fen(fen)
         self.analysis = Analysis.Analysis(self.board)
-        pprint(self.board)
 
     @staticmethod
     def load_fen(fen):
@@ -71,7 +69,6 @@ class Pieces:
             self.selected = None
             if not self.analysis.move_made:
                 return False
-            pprint(self.board)
             return True
 
         self.selected = None

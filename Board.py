@@ -11,6 +11,7 @@ class Board:
 
         self.selected = None
         self.selected2 = None
+        self.mouse_pos = None
 
         self.legal = []
 
@@ -31,9 +32,26 @@ class Board:
 
         for i in range(8):
             for j in range(8):
+                self.squares[i][j].check = False
+                if analysis.board[i][j] == 10:
+                    if analysis.w_king_in_check:
+                        self.squares[i][j].check = True
+                    else:
+                        self.squares[i][j].check = False
+                elif analysis.board[i][j] == 4:
+                    if analysis.b_king_in_check:
+                        self.squares[i][j].check = True
+                    else:
+                        self.squares[i][j].check = False
+
                 self.squares[i][j].draw()
             self.screen.blit(self.font.render(numbers[i], True, (183, 183, 183)), (2, i * 60 + 40))
             self.screen.blit(self.font.render(letters[i], True, (183, 183, 183)), (i * 60 + 40, 500))
+
+        if self.mouse_pos is not None:
+            x = floor(self.mouse_pos[0] / 60) * 60
+            y = floor(self.mouse_pos[1] / 60) * 60
+            pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect(x + 15, y + 15, 60, 60), 2)
 
         self.screen.blit(self.font.render("Eval: " + str(float(analysis.evaluation)), True, (183, 183, 183)), (500, 15))
 
@@ -93,6 +111,7 @@ class Square:
         self.curr_colour = self.colour
         self.rect = pygame.Rect(rect)
         self.selected = False
+        self.check = False
         self.moveable = False
 
     def draw(self):
@@ -100,6 +119,9 @@ class Square:
             self.curr_colour = (42, 64, 83)
         else:
             self.curr_colour = self.colour
+
+        if self.check:
+            self.curr_colour = (92, 11, 6)
 
         pygame.draw.rect(self.surface, self.curr_colour, self.rect)
 

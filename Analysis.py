@@ -867,31 +867,13 @@ class Analysis:
         board = deepcopy(self.board)
         to_remove = []
         for k in moves:
-            opp_moves = []
-            for x in range(8):
-                for y in range(8):
-                    if board[x][y] is not None:
-                        if board[k[0]][k[1]] == 10:
-                            if board[x][y] > 6:
-                                opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
-                        else:
-                            if board[x][y] <= 6:
-                                opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
             if "w0-0" in k:
-                for m in opp_moves:
-                    if (7, 4) in m or (7, 5) in m or (7, 6) in m:
-                        if k in moves:
-                            to_remove.append(k)
                 board[7][4] = None
                 board[7][5] = 7
                 board[7][6] = 10
                 board[7][7] = None
 
             elif "w0-0-0" in k:
-                for m in opp_moves:
-                    if (7, 4) in m or (7, 3) in m or (7, 2) in m or (7, 1) in m:
-                        if k in moves:
-                            to_remove.append(k)
                 board[7][4] = None
                 board[7][3] = 7
                 board[7][2] = 10
@@ -899,20 +881,12 @@ class Analysis:
                 board[7][0] = None
 
             elif "b0-0" in k:
-                for m in opp_moves:
-                    if (0, 4) in m or (0, 5) in m or (0, 6) in m:
-                        if k in moves:
-                            to_remove.append(k)
                 board[0][4] = None
                 board[0][5] = 1
                 board[0][6] = 4
                 board[0][7] = None
 
             elif "b0-0-0" in k:
-                for m in opp_moves:
-                    if (0, 4) in m or (0, 3) in m or (0, 2) in m or (0, 1) in m:
-                        if k in moves:
-                            to_remove.append(k)
                 board[0][4] = None
                 board[0][3] = 1
                 board[0][2] = 4
@@ -970,97 +944,9 @@ class Analysis:
 
         return moves
 
-    def check_for_block_check(self, i, j, k0, k1, moves):
-        board = deepcopy(self.board)
-
-        to_return = []
-
-        for k in moves:
-            if "w0-0" in k:
-                board[7][4] = None
-                board[7][5] = 7
-                board[7][6] = 10
-                board[7][7] = None
-
-            elif "w0-0-0" in k:
-                board[7][4] = None
-                board[7][3] = 7
-                board[7][2] = 10
-                board[7][1] = None
-                board[7][0] = None
-
-            elif "b0-0" in k:
-                board[0][4] = None
-                board[0][5] = 1
-                board[0][6] = 4
-                board[0][7] = None
-
-            elif "b0-0-0" in k:
-                board[0][4] = None
-                board[0][3] = 1
-                board[0][2] = 4
-                board[0][1] = None
-                board[0][0] = None
-
-            elif "epr" in k:
-                temp = board[i][j]
-
-                board[i][j + 1] = None
-
-                board[k[0]][k[1]] = temp
-                board[i][j] = None
-                if board[k[0]][k[1]] == 0 and k[0] == 7:
-                    board[k[0]][k[1]] = 5
-                if board[k[0]][k[1]] == 6 and k[0] == 0:
-                    board[k[0]][k[1]] = 11
-
-            elif "epl" in k:
-                temp = board[i][j]
-
-                board[i][j - 1] = None
-
-                board[k[0]][k[1]] = temp
-                board[i][j] = None
-                if board[k[0]][k[1]] == 0 and k[0] == 7:
-                    board[k[0]][k[1]] = 5
-                if board[k[0]][k[1]] == 6 and k[0] == 0:
-                    board[k[0]][k[1]] = 11
-
-            else:
-                temp = board[i][j]
-                board[k[0]][k[1]] = temp
-                board[i][j] = None
-                if board[k[0]][k[1]] == 0 and k[0] == 7:
-                    board[k[0]][k[1]] = 5
-                if board[k[0]][k[1]] == 6 and k[0] == 0:
-                    board[k[0]][k[1]] = 11
-
-            if not self.check_for_king_in_check(k0, k1, board=board):
-                to_return.append(k)
-
-            board = deepcopy(self.board)
-
-        return to_return
-
+    # TODO: King movements: Block check
     def legal_moves(self, i, j, ignore_turn=False):
         legal_moves = self.pseudo_legal_moves(i, j, ignore_turn=ignore_turn)
-        print(legal_moves)
-        for k in range(8):
-            for l in range(8):
-                if self.board[k][l] is not None:
-                    if self.turn == "w":
-                        if self.board[k][l] == 10:
-                            if i != k and j != l:
-                                if self.check_for_king_in_check(k, l):
-                                    legal_moves = self.check_for_block_check(i, j, k, l, legal_moves)
-                                    return legal_moves
-                    else:
-                        if self.board[k][l] == 4:
-                            if i != k and j != l:
-                                if self.check_for_king_in_check(k, l):
-                                    legal_moves = self.check_for_block_check(i, j, k, l, legal_moves)
-                                    return legal_moves
-
         legal_moves = self.check_for_walk_into_check(i, j, legal_moves)
         legal_moves = self.check_for_fork(i, j, legal_moves)
 

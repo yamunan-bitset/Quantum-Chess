@@ -863,7 +863,7 @@ class Analysis:
             for x in range(8):
                 for y in range(8):
                     if board[x][y] is not None:
-                        if (self.turn == "w" and board[x][y] == 10) or (self.turn == "w" and board[x][y] == 4):
+                        if (self.turn == "w" and board[x][y] == 10) or (self.turn == "b" and board[x][y] == 4):
                             if self.check_for_king_in_check(x, y, board=board):
                                 illegal.append(move)
 

@@ -1,4 +1,5 @@
 from pprint import pprint
+from time import time
 from copy import deepcopy
 
 
@@ -731,32 +732,35 @@ class Analysis:
         if board is None:
             board = deepcopy(self.board)
 
+        if None in move:
+            return board
+
         if "w0-0" in move:
             board[7][4] = None
             board[7][5] = 7
             board[7][6] = 10
             board[7][7] = None
-            
+
         elif "w0-0-0" in move:
             board[7][4] = None
             board[7][3] = 7
             board[7][2] = 10
             board[7][1] = None
             board[7][0] = None
-            
+
         elif "b0-0" in move:
             board[0][4] = None
             board[0][5] = 1
             board[0][6] = 4
             board[0][7] = None
-            
+
         elif "b0-0-0" in move:
             board[0][4] = None
             board[0][3] = 1
             board[0][2] = 4
             board[0][1] = None
             board[0][0] = None
-            
+
         elif "epr" in move:
             temp = board[i][j]
             board[i][j + 1] = None
@@ -766,7 +770,7 @@ class Analysis:
                 board[move[0]][move[1]] = 5
             if board[move[0]][move[1]] == 6 and move[0] == 0:
                 board[move[0]][move[1]] = 11
-                
+
         elif "epl" in move:
             temp = board[i][j]
             board[i][j - 1] = None
@@ -804,7 +808,8 @@ class Analysis:
                                 opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
 
             for m in opp_moves:
-                if (i, j) in m or (i, j, "w0-0") in m or (i, j, "b0-0") in m or (i, j, "w0-0-0") in m or (i, j, "b0-0-0") in m or (i, j, "epr") in m or (i, j, "epl") in m:
+                if (i, j) in m or (i, j, "w0-0") in m or (i, j, "b0-0") in m or (i, j, "w0-0-0") in m or (
+                i, j, "b0-0-0") in m or (i, j, "epr") in m or (i, j, "epl") in m:
                     return True
 
         return False
@@ -859,7 +864,7 @@ class Analysis:
         illegal = []
         for move in moves:
             board = self.depth(i, j, move)
-            
+
             for x in range(8):
                 for y in range(8):
                     if board[x][y] is not None:

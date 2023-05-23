@@ -1,6 +1,8 @@
 import pygame
 from math import floor
 
+import Pieces
+
 
 class Board:
     def __init__(self, screen):
@@ -71,6 +73,44 @@ class Board:
             self.screen.blit(self.font.render("Draw 1/2-1/2", True, (183, 183, 183)), (500, 75))
 
 
+    def get_promotions(self, colour):
+        if colour == "w":
+            self.screen.blit(Pieces.piece_imgs[11], (15, 515))
+            self.screen.blit(Pieces.piece_imgs[7], (75, 515))
+            self.screen.blit(Pieces.piece_imgs[8], (135, 515))
+            self.screen.blit(Pieces.piece_imgs[9], (195, 515))
+        else:
+            self.screen.blit(Pieces.piece_imgs[5], (15, 515))
+            self.screen.blit(Pieces.piece_imgs[1], (75, 515))
+            self.screen.blit(Pieces.piece_imgs[2], (135, 515))
+            self.screen.blit(Pieces.piece_imgs[3], (195, 515))
+
+        pygame.display.update()
+
+        flag = None
+
+        while True:
+            event = pygame.event.wait()
+            if event.type == pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+                x = floor(pos[0] / 60)
+                y = floor(pos[1] / 60)
+                if x == 0 and y == 9:
+                    flag = "q"
+                    break
+                elif x == 1 and y == 9:
+                    flag = "r"
+                    break
+                elif x == 2 and y == 9:
+                    flag = "k"
+                    break
+                elif x == 3 and y == 9:
+                    flag = "b"
+                    break
+                else:
+                    continue
+
+        return flag
 
     def select(self, pos, pieces):
         x = floor(pos[1] / 60)

@@ -69,14 +69,32 @@ class Analysis:
             # black pawn
 
             if board[i + 1][j] is None:
-                moves.append((i + 1, j))
+                if i + 1 == 7:
+                    moves.append((i + 1, j, "pq"))
+                    moves.append((i + 1, j, "pr"))
+                    moves.append((i + 1, j, "pk"))
+                    moves.append((i + 1, j, "pb"))
+                else:
+                    moves.append((i + 1, j))
             if i == 1:
                 if board[i + 1][j] is None and board[i + 2][j] is None:
                     moves.append((i + 2, j))
             if j != 7 and board[i + 1][j + 1] is not None and board[i + 1][j + 1] >= 6:
-                moves.append((i + 1, j + 1))
+                if i + 1 == 7:
+                    moves.append((i + 1, j + 1, "pq"))
+                    moves.append((i + 1, j + 1, "pr"))
+                    moves.append((i + 1, j + 1, "pk"))
+                    moves.append((i + 1, j + 1, "pb"))
+                else:
+                    moves.append((i + 1, j + 1))
             if j != 0 and board[i + 1][j - 1] is not None and board[i + 1][j - 1] >= 6:
-                moves.append((i + 1, j - 1))
+                if i + 1 == 7:
+                    moves.append((i + 1, j - 1, "pq"))
+                    moves.append((i + 1, j - 1, "pr"))
+                    moves.append((i + 1, j - 1, "pk"))
+                    moves.append((i + 1, j - 1, "pb"))
+                else:
+                    moves.append((i + 1, j - 1))
             if self.prev_move is not None:
                 if board[self.prev_move[2]][self.prev_move[3]] == 6 and self.prev_move[0] == 6 and self.prev_move[
                     2] == 4 and i == 4:
@@ -88,14 +106,32 @@ class Analysis:
         if board[i][j] == 6:
             # white pawn
             if board[i - 1][j] is None:
-                moves.append((i - 1, j))
+                if i - 1 == 0:
+                    moves.append((i - 1, j, "pq"))
+                    moves.append((i - 1, j, "pr"))
+                    moves.append((i - 1, j, "pk"))
+                    moves.append((i - 1, j, "pb"))
+                else:
+                    moves.append((i - 1, j))
             if i == 6:
                 if board[i - 1][j] is None and board[i - 2][j] is None:
                     moves.append((i - 2, j))
             if j != 0 and board[i - 1][j - 1] is not None and board[i - 1][j - 1] < 6:
-                moves.append((i - 1, j - 1))
+                if i - 1 == 0:
+                    moves.append((i - 1, j - 1, "pq"))
+                    moves.append((i - 1, j - 1, "pr"))
+                    moves.append((i - 1, j - 1, "pk"))
+                    moves.append((i - 1, j - 1, "pb"))
+                else:
+                    moves.append((i - 1, j - 1))
             if j != 7 and board[i - 1][j + 1] is not None and board[i - 1][j + 1] < 6:
-                moves.append((i - 1, j + 1))
+                if i - 1 == 0:
+                    moves.append((i - 1, j + 1, "pq"))
+                    moves.append((i - 1, j + 1, "pr"))
+                    moves.append((i - 1, j + 1, "pk"))
+                    moves.append((i - 1, j + 1, "pb"))
+                else:
+                    moves.append((i - 1, j + 1))
             if self.prev_move is not None:
                 if board[self.prev_move[2]][self.prev_move[3]] == 0 and self.prev_move[0] == 1 and self.prev_move[
                     2] == 3 and i == 3:
@@ -766,21 +802,14 @@ class Analysis:
             board[i][j + 1] = None
             board[move[0]][move[1]] = temp
             board[i][j] = None
-            if board[move[0]][move[1]] == 0 and move[0] == 7:
-                board[move[0]][move[1]] = 5
-            if board[move[0]][move[1]] == 6 and move[0] == 0:
-                board[move[0]][move[1]] = 11
 
         elif "epl" in move:
             temp = board[i][j]
             board[i][j - 1] = None
             board[move[0]][move[1]] = temp
             board[i][j] = None
-            if board[move[0]][move[1]] == 0 and move[0] == 7:
-                board[move[0]][move[1]] = 5
-            if board[move[0]][move[1]] == 6 and move[0] == 0:
-                board[move[0]][move[1]] = 11
-        else:
+
+        elif "pq" in move:
             temp = board[i][j]
             board[move[0]][move[1]] = temp
             board[i][j] = None
@@ -788,6 +817,38 @@ class Analysis:
                 board[move[0]][move[1]] = 5
             if board[move[0]][move[1]] == 6 and move[0] == 0:
                 board[move[0]][move[1]] = 11
+
+        elif "pr" in move:
+            temp = board[i][j]
+            board[move[0]][move[1]] = temp
+            board[i][j] = None
+            if board[move[0]][move[1]] == 0 and move[0] == 7:
+                board[move[0]][move[1]] = 1
+            if board[move[0]][move[1]] == 6 and move[0] == 0:
+                board[move[0]][move[1]] = 7
+
+        elif "pk" in move:
+            temp = board[i][j]
+            board[move[0]][move[1]] = temp
+            board[i][j] = None
+            if board[move[0]][move[1]] == 0 and move[0] == 7:
+                board[move[0]][move[1]] = 2
+            if board[move[0]][move[1]] == 6 and move[0] == 0:
+                board[move[0]][move[1]] = 8
+
+        elif "pb" in move:
+            temp = board[i][j]
+            board[move[0]][move[1]] = temp
+            board[i][j] = None
+            if board[move[0]][move[1]] == 0 and move[0] == 7:
+                board[move[0]][move[1]] = 3
+            if board[move[0]][move[1]] == 6 and move[0] == 0:
+                board[move[0]][move[1]] = 9
+
+        else:
+            temp = board[i][j]
+            board[move[0]][move[1]] = temp
+            board[i][j] = None
 
         return board
 
@@ -884,7 +945,7 @@ class Analysis:
         legal_moves = self.check_for_resolve_check(i, j, legal_moves)
         return legal_moves
 
-    def move(self, i0, j0, i1, j1, legal_moves=None):
+    def move(self, i0, j0, i1, j1, legal_moves=None, flag=None):
         if legal_moves is None:
             legal_moves = self.legal_moves(i0, j0)
 
@@ -1016,6 +1077,55 @@ class Analysis:
 
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
+
+        elif (i1, j1, "pq") in legal_moves and flag == "q":
+            temp = self.board[i0][j0]
+            self.board[i1][j1] = temp
+            self.board[i0][j0] = None
+            if self.board[i1][j1] == 0 and i1 == 7:
+                self.board[i1][j1] = 5
+            if self.board[i1][j1] == 6 and i1 == 0:
+                self.board[i1][j1] = 11
+
+            self.prev_move = (i0, j0, i1, j1)
+            self.move_made = True
+
+        elif (i1, j1, "pr") in legal_moves and flag == "r":
+            temp = self.board[i0][j0]
+            self.board[i1][j1] = temp
+            self.board[i0][j0] = None
+            if self.board[i1][j1] == 0 and i1 == 7:
+                self.board[i1][j1] = 1
+            if self.board[i1][j1] == 6 and i1 == 0:
+                self.board[i1][j1] = 7
+
+            self.prev_move = (i0, j0, i1, j1)
+            self.move_made = True
+
+        elif (i1, j1, "pk") in legal_moves and flag == "k":
+            temp = self.board[i0][j0]
+            self.board[i1][j1] = temp
+            self.board[i0][j0] = None
+            if self.board[i1][j1] == 0 and i1 == 7:
+                self.board[i1][j1] = 2
+            if self.board[i1][j1] == 6 and i1 == 0:
+                self.board[i1][j1] = 8
+
+            self.prev_move = (i0, j0, i1, j1)
+            self.move_made = True
+
+        elif (i1, j1, "pb") in legal_moves and flag == "q":
+            temp = self.board[i0][j0]
+            self.board[i1][j1] = temp
+            self.board[i0][j0] = None
+            if self.board[i1][j1] == 0 and i1 == 7:
+                self.board[i1][j1] = 3
+            if self.board[i1][j1] == 6 and i1 == 0:
+                self.board[i1][j1] = 9
+
+            self.prev_move = (i0, j0, i1, j1)
+            self.move_made = True
+
         else:
             self.move_made = False
 

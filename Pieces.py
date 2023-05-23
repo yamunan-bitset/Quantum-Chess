@@ -30,6 +30,8 @@ class Pieces:
         self.board = Pieces.load_fen(fen)
         self.analysis = Analysis.Analysis(self.board)
 
+        self.promotion = False
+
     @staticmethod
     def load_fen(fen):
         board = []
@@ -60,15 +62,23 @@ class Pieces:
             return False
         if self.board[i][j] is not None:
             self.selected = (i, j)
+            legal_moves = self.analysis.legal_moves(i, j)
+            for move in legal_moves:
+                for i in move:
+                    if isinstance(i, str):
+                        if "p" in i:
+                            self.promotion = True
             return True
         return False
 
-    def drop(self, i, j):
+    def drop(self, i, j, flag=None):
         if i is not None and j is not None:
-            self.board = self.analysis.move(*self.selected, i, j)
+            self.board = self.analysis.move(*self.selected, i, j, flag=flag)
             self.selected = None
             if not self.analysis.move_made:
                 return False
+
+            self.promotion = False
             return True
 
         self.selected = None

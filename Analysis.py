@@ -70,6 +70,7 @@ class Analysis:
 
             if board[i + 1][j] is None:
                 if i + 1 == 7:
+                    print("reached")
                     moves.append((i + 1, j, "pq"))
                     moves.append((i + 1, j, "pr"))
                     moves.append((i + 1, j, "pk"))
@@ -870,7 +871,8 @@ class Analysis:
 
             for m in opp_moves:
                 if (i, j) in m or (i, j, "w0-0") in m or (i, j, "b0-0") in m or (i, j, "w0-0-0") in m or (
-                i, j, "b0-0-0") in m or (i, j, "epr") in m or (i, j, "epl") in m:
+                i, j, "b0-0-0") in m or (i, j, "epr") in m or (i, j, "epl") in m or (i, j, "pq") in m or (
+                i, j, "pr") in m or (i, j, "pb") in m or (i, j, "pk") in m:
                     return True
 
         return False

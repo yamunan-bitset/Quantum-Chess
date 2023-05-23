@@ -66,7 +66,7 @@ class Pieces:
             for move in legal_moves:
                 for i in move:
                     if isinstance(i, str):
-                        if "p" in i:
+                        if i[0] == "p":
                             self.promotion = True
             return True
         return False

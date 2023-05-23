@@ -18,18 +18,20 @@ board = Board(screen)
 startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 pos5 = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"
 pieces = Pieces(screen, pos5)
+pieces.analysis.b_king_moved = True
 
 startpos_actual_nodes = [1, 20, 400, 8902, 197281, 4865609, 119060324, 3195901860, 84998978956, 2439530234167, 69352859712417]
 # Startpos test:
-# depth 1, test node 20
-# depth 2, test node 400
-# depth 3, test node 8902
-# depth 4, test node 197281
+# depth 1, test node 20     ✔
+# depth 2, test node 400    ✔
+# depth 3, test node 8902   ✔
+# depth 4, test node 197281 ✔
 
 pos5_actual_nodes = [1, 44, 1486, 62379, 2103487, 89941194]
 # Position 5 test:
-# depth 1, test node 41
-# depth 2, test node 1373
+# depth 1, test node 44     ✔
+# depth 2, test node 1525   x
+# depth 3, test node    x
 
 def depth_test(n, mboard, turn, log=False):
     if n == 0:

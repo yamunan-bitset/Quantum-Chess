@@ -30,9 +30,10 @@ def depth_test(n, mboard, turn, log=False):
     legal_moves = []
     for x in range(8):
         for y in range(8):
-            if pieces.analysis.board[x][y] is not None:
-                if (turn == "w" and pieces.analysis.board[x][y] >= 6) or (turn == "b" and pieces.analysis.board[x][y] < 6):
-                    moves = pieces.analysis.legal_moves(x, y, ignore_turn=True)
+            if mboard[x][y] is not None:
+                if (turn == "w" and mboard[x][y] >= 6) or (turn == "b" and mboard[x][y] < 6):
+                    pieces.analysis.turn = turn
+                    moves = pieces.analysis.legal_moves(x, y)
                     if moves == []:
                         continue
                     for i in moves:
@@ -44,13 +45,18 @@ def depth_test(n, mboard, turn, log=False):
         mboard = pieces.analysis.depth(*move, board=mboard)
         board.board = mboard
         pieces.board = mboard
+        pieces.analysis.board = mboard
+        screen.fill((36, 34, 30))
         board.render(pieces.analysis)
         pieces.render()
         pygame.display.update()
+        #pygame.event.wait()
         nodes += depth_test(n - 1, mboard, "b" if turn == "w" else "w")
         mboard = _board
-        board.board = board
-        pieces.board = board
+        board.board = _board
+        pieces.board = _board
+        pieces.analysis.board = _board
+
 
     if log:
         print(f"{nodes=}")
@@ -60,4 +66,4 @@ def depth_test(n, mboard, turn, log=False):
 
 screen.fill((36, 34, 30))
 
-depth_test(2, Pieces.load_fen(startpos), "w", log=True)
+depth_test(3, Pieces.load_fen(startpos), "w", log=True)

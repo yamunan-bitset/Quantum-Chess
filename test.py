@@ -30,8 +30,8 @@ startpos_actual_nodes = [1, 20, 400, 8902, 197281, 4865609, 119060324, 319590186
 pos5_actual_nodes = [1, 44, 1486, 62379, 2103487, 89941194]
 # Position 5 test:
 # depth 1, test node 44     ✔
-# depth 2, test node 1525   x
-# depth 3, test node    x
+# depth 2, test node 1486   ✔
+# depth 3, test node 62466  x
 
 def depth_test(n, mboard, turn, log=False):
     if n == 0:
@@ -78,4 +78,4 @@ def depth_test(n, mboard, turn, log=False):
 
 screen.fill((36, 34, 30))
 
-depth_test(2, Pieces.load_fen(pos5), "w", log=True)
+depth_test(3, Pieces.load_fen(pos5), "w", log=True)

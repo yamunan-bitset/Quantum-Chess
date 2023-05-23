@@ -66,4 +66,4 @@ def depth_test(n, mboard, turn, log=False):
 
 screen.fill((36, 34, 30))
 
-depth_test(3, Pieces.load_fen(startpos), "w", log=True)
+depth_test(4, Pieces.load_fen(startpos), "w", log=True)

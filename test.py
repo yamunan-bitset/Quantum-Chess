@@ -19,6 +19,10 @@ startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 pieces = Pieces(screen, startpos)
 
 actual_nodes = [1, 20, 400, 8902, 197281, 4865609, 119060324, 3195901860, 84998978956, 2439530234167, 69352859712417]
+# depth 1, test node 20
+# depth 2, test node 400
+# depth 3, test node 8902
+# depth 4, test node 197281
 
 def depth_test(n, mboard, turn, log=False):
     if n == 0:
@@ -50,13 +54,12 @@ def depth_test(n, mboard, turn, log=False):
         board.render(pieces.analysis)
         pieces.render()
         pygame.display.update()
-        #pygame.event.wait()
+        # pygame.event.wait()
         nodes += depth_test(n - 1, mboard, "b" if turn == "w" else "w")
         mboard = _board
         board.board = _board
         pieces.board = _board
         pieces.analysis.board = _board
-
 
     if log:
         print(f"{nodes=}")

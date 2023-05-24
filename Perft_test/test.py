@@ -54,7 +54,6 @@ def depth_test(n, mboard, turn, log=False):
     for move in legal_moves:
         _board = deepcopy(mboard)
         mboard = pieces.analysis.depth(*move, board=mboard)
-        board.board = mboard
         pieces.board = mboard
         pieces.analysis.board = mboard
         screen.fill((36, 34, 30))
@@ -64,7 +63,6 @@ def depth_test(n, mboard, turn, log=False):
         # pygame.time.wait(10)
         nodes += depth_test(n - 1, mboard, "b" if turn == "w" else "w")
         mboard = _board
-        board.board = _board
         pieces.board = _board
         pieces.analysis.board = _board
 

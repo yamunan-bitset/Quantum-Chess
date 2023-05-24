@@ -1,4 +1,6 @@
 import socket
+socket.getaddrinfo("127.0.0.1", 1729)
+
 import pickle
 import os
 import pygame
@@ -19,7 +21,8 @@ startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 pieces = Pieces(screen, startpos)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((socket.gethostname(), 1729))
+s.settimeout(2)
+s.connect(("127.0.0.1", 1729))
 
 
 def recv():
@@ -37,51 +40,50 @@ def send(move):
 ignore = False
 
 while True:
-    event = pygame.event.wait()
-    if event.type == pygame.QUIT:
-        break
-    if event.type == pygame.MOUSEBUTTONDOWN:
-        if event.button == 1:
-            pos = pygame.mouse.get_pos()
-            button = pygame.mouse
-            pieces.mouse_pos = pos
-            index = board.select(pos, pieces)
-            if not pieces.select(*index):
-                board.unselect()
-                ignore = True
-    if event.type == pygame.MOUSEBUTTONUP:
-        if event.button == 1:
-            if not ignore:
+    if pieces.analysis.turn == "b":
+        event = pygame.event.wait()
+        if event.type == pygame.QUIT:
+            break
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
                 pos = pygame.mouse.get_pos()
                 button = pygame.mouse
                 pieces.mouse_pos = pos
-                index = board.drop(pos)
-                flag = None
-                if pieces.promotion:
-                    flag = board.get_promotions(pieces.analysis.turn)
-                #send([*pieces.selected, *index])
-                if not pieces.drop(*index, flag=flag):
+                index = board.select(pos, pieces)
+                if not pieces.select(*index):
                     board.unselect()
-                send(pieces.board)
-            else:
-                ignore = False
+                    ignore = True
+        if event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                if not ignore:
+                    pos = pygame.mouse.get_pos()
+                    button = pygame.mouse
+                    pieces.mouse_pos = pos
+                    index = board.drop(pos)
+                    flag = None
+                    if pieces.promotion:
+                        flag = board.get_promotions(pieces.analysis.turn)
+                    selected = pieces.selected
+                    if not pieces.drop(*index, flag=flag):
+                        board.unselect()
+                    else:
+                        board.render(pieces.analysis)
+                        pieces.render()
+                        send([*selected, *index, flag])
 
-    if pieces.analysis.turn == "w":
+                else:
+                    ignore = False
+
+    else:
+        s.settimeout(0.1)
         move = recv()
         if move is not None:
             print(f"Received {move=}")
-            """
-            index = board.auto_select(move[0], move[1], pieces)
-            pieces.select(*index)
-            index = board.auto_drop(move[0], move[1])
-            # TODO: Promotion
-            flag = None
-            if pieces.promotion:
-                flag = board.get_promotions(pieces.analysis.turn)
-            pieces.drop(*index, flag=flag)
-            """
-            pieces.board = move
-            pieces.analysis.board = move
+
+            board.auto_select(move[0], move[1], pieces)
+            pieces.select(move[0], move[1])
+            board.auto_drop(move[2], move[3])
+            pieces.drop(move[2], move[3], flag=move[4])
 
     screen.fill((36, 34, 30))
     board.render(pieces.analysis)

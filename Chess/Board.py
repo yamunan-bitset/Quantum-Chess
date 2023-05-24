@@ -135,9 +135,6 @@ class Board:
         return self.selected
 
     def auto_select(self, x, y, pieces):
-        if x < 0 or x > 7 or y < 0 or y > 7:
-            return None, None
-
         if self.selected is not None and self.selected2 is not None:
             self.squares[self.selected[0]][self.selected[1]].selected = False
             self.squares[self.selected2[0]][self.selected2[1]].selected = False
@@ -146,10 +143,6 @@ class Board:
 
         self.squares[x][y].selected = True
         self.selected = (x, y)
-
-        self.legal = pieces.analysis.legal_moves(x, y)
-        for i in self.legal:
-            self.squares[i[0]][i[1]].moveable = True
 
         return self.selected
 
@@ -180,15 +173,6 @@ class Board:
         return self.selected2
 
     def auto_drop(self, x, y):
-        if x > 7 or y > 7 or x < 0 or y < 0:
-            self.squares[self.selected[0]][self.selected[1]].selected = False
-            return None, None
-
-        for i in self.legal:
-            self.squares[i[0]][i[1]].moveable = False
-
-        self.legal = []
-
         self.squares[x][y].selected = True
         self.selected2 = (x, y)
 

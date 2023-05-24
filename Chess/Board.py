@@ -72,29 +72,17 @@ class Board:
             self.screen.blit(self.font.render("Stale mate", True, (183, 183, 183)), (500, 50))
             self.screen.blit(self.font.render("Draw 1/2-1/2", True, (183, 183, 183)), (500, 75))
 
-
     def get_promotions(self, colour):
-        if colour == "w":
-            self.screen.blit(Pieces.piece_imgs[11], (15, 515))
-            self.screen.blit(Pieces.piece_imgs[7], (75, 515))
-            self.screen.blit(Pieces.piece_imgs[8], (135, 515))
-            self.screen.blit(Pieces.piece_imgs[9], (195, 515))
-        else:
-            self.screen.blit(Pieces.piece_imgs[5], (15, 515))
-            self.screen.blit(Pieces.piece_imgs[1], (75, 515))
-            self.screen.blit(Pieces.piece_imgs[2], (135, 515))
-            self.screen.blit(Pieces.piece_imgs[3], (195, 515))
-
-        pygame.display.update()
-
         flag = None
+
+        promotion_surface = pygame.Surface((1000, 800))
 
         while True:
             event = pygame.event.wait()
+            pos = pygame.mouse.get_pos()
+            x = floor((pos[0] - 15) / 60)
+            y = floor((pos[1] - 15) / 60)
             if event.type == pygame.MOUSEBUTTONUP:
-                pos = pygame.mouse.get_pos()
-                x = floor(pos[0] / 60)
-                y = floor(pos[1] / 60)
                 if x == 0 and y == 9:
                     flag = "q"
                     break
@@ -109,6 +97,32 @@ class Board:
                     break
                 else:
                     continue
+
+            promotion_surface.fill((36, 34, 30))
+
+            if x == 0 and y == 8:
+                pygame.draw.rect(promotion_surface, (50, 120, 100), pygame.Rect(15, 515, 60, 60))
+            elif x == 1 and y == 8:
+                pygame.draw.rect(promotion_surface, (50, 120, 100), pygame.Rect(75, 515, 60, 60))
+            elif x == 2 and y == 8:
+                pygame.draw.rect(promotion_surface, (50, 120, 100), pygame.Rect(135, 515, 60, 60))
+            elif x == 3 and y == 8:
+                pygame.draw.rect(promotion_surface, (50, 120, 100), pygame.Rect(195, 515, 60, 60))
+
+            if colour == "w":
+                promotion_surface.blit(Pieces.piece_imgs[11], (15, 515))
+                promotion_surface.blit(Pieces.piece_imgs[7], (75, 515))
+                promotion_surface.blit(Pieces.piece_imgs[8], (135, 515))
+                promotion_surface.blit(Pieces.piece_imgs[9], (195, 515))
+            else:
+                promotion_surface.blit(Pieces.piece_imgs[5], (15, 515))
+                promotion_surface.blit(Pieces.piece_imgs[1], (75, 515))
+                promotion_surface.blit(Pieces.piece_imgs[2], (135, 515))
+                promotion_surface.blit(Pieces.piece_imgs[3], (195, 515))
+
+            self.screen.blit(promotion_surface, (0, 0))
+
+            pygame.display.update()
 
         return flag
 

@@ -1,0 +1,33 @@
+# Initial position
+## FEN
+```
+rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+```
+
+## PyChess results:
+```
+20
+400
+8902
+197281
+```
+
+## Tested results:
+```
+20
+400
+8902
+197281
+4865609
+119060324
+3195901860
+84998978956
+2439530234167
+69352859712417
+2097651003696806
+62854969236701747
+1981066775000396239
+61885021521585529237
+2015099950053364471960
+```
+Data from [Chess Programming Wiki](https://www.chessprogramming.org/Perft_Results)

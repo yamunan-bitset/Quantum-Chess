@@ -1,8 +1,7 @@
 import os
 import pygame
-from pprint import pprint
 
-import Analysis
+from . import Analysis
 
 piece_imgs = [
     pygame.image.load(os.path.join("texture", "black", "pawn.png")),    # 0
@@ -28,7 +27,7 @@ class Pieces:
         self.mouse_pos = None
 
         self.board = Pieces.load_fen(fen)
-        self.analysis = Analysis.Analysis(self.board)
+        self.analysis = Analysis(self.board)
 
         self.promotion = False
 

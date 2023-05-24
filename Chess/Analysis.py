@@ -1,5 +1,3 @@
-from pprint import pprint
-from time import time
 from copy import deepcopy
 
 
@@ -70,7 +68,6 @@ class Analysis:
 
             if board[i + 1][j] is None:
                 if i + 1 == 7:
-                    print("reached")
                     moves.append((i + 1, j, "pq"))
                     moves.append((i + 1, j, "pr"))
                     moves.append((i + 1, j, "pk"))

@@ -1,10 +1,10 @@
 import os
 import pygame
+
+from Chess import Pieces, Board
+
 pygame.init()
 
-import Pieces
-import Board
-import Analysis
 
 logo = pygame.image.load(os.path.join("texture", "black", "knight.png"))
 pygame.display.set_icon(logo)
@@ -12,10 +12,10 @@ pygame.display.set_caption("Chess Analysis")
 screen = pygame.display.set_mode((1000, 800))
 screen.fill((36, 34, 30))
 
-board = Board.Board(screen)
+board = Board(screen)
 
 startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-pieces = Pieces.Pieces(screen, startpos)
+pieces = Pieces(screen, startpos)
 
 ignore = False
 
@@ -46,7 +46,6 @@ while True:
                     board.unselect()
             else:
                 ignore = False
-
 
     screen.fill((36, 34, 30))
     board.render(pieces.analysis)

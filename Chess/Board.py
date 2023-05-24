@@ -1,7 +1,7 @@
 import pygame
 from math import floor
 
-import Pieces
+from . import Pieces
 
 
 class Board:

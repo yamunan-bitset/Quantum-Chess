@@ -1,6 +1,7 @@
-from Chess import Board
+from Chess import Analysis
 from Chess import Pieces
 from copy import deepcopy
+from Chess import Board
 import os
 import pygame
 
@@ -21,14 +22,12 @@ pos4 = "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"
 pos5 = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"
 pos6 = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"
 
-pieces = Pieces(screen, pos5)
-pieces.analysis.b_king_moved = True
+#######
+DEPTH = 5
+POS = startpos
+#######
 
-# Change depth and pos to test
-#############
-DEPTH = 3
-POS = pos5
-#############
+pieces = Pieces(screen, POS)
 
 
 def depth_test(n, mboard, turn, log=False):
@@ -54,15 +53,17 @@ def depth_test(n, mboard, turn, log=False):
     for move in legal_moves:
         _board = deepcopy(mboard)
         mboard = pieces.analysis.depth(*move, board=mboard)
+        board.board = mboard
         pieces.board = mboard
         pieces.analysis.board = mboard
         screen.fill((36, 34, 30))
         board.render(pieces.analysis)
         pieces.render()
         pygame.display.update()
-        # pygame.time.wait(10)
+        # pygame.event.wait()
         nodes += depth_test(n - 1, mboard, "b" if turn == "w" else "w")
         mboard = _board
+        board.board = _board
         pieces.board = _board
         pieces.analysis.board = _board
 

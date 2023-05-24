@@ -3,10 +3,10 @@
 To do testing, do the following changes in `Perft_test/test.py`:
 
 ```
-29   #############
-30   DEPTH = 3
-31   POS = pos5
-32   #############
+25   #############
+26   DEPTH = 3
+27   POS = pos5
+28   #############
 ```
 Then, to run the program, execute `Perft_test/test.py` from `..`, or simply:
 ```

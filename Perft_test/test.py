@@ -1,13 +1,17 @@
-from Chess import Analysis
-from Chess import Pieces
-from copy import deepcopy
-from Chess import Board
+import sys
 import os
 import pygame
-
 pygame.init()
 
-logo = pygame.image.load(os.path.join("texture", "black", "knight.png"))
+from time import time
+from copy import deepcopy
+
+sys.path.insert(0, "..")
+from Chess import Pieces
+from Chess import Board
+
+
+logo = pygame.image.load(os.path.join("..", "texture", "black", "knight.png"))
 pygame.display.set_icon(logo)
 pygame.display.set_caption("Chess Analysis")
 screen = pygame.display.set_mode((1000, 800))
@@ -23,7 +27,7 @@ pos5 = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"
 pos6 = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"
 
 #######
-DEPTH = 5
+DEPTH = 3
 POS = startpos
 #######
 
@@ -75,4 +79,7 @@ def depth_test(n, mboard, turn, log=False):
 
 screen.fill((36, 34, 30))
 
+t0 = time()
 depth_test(DEPTH, Pieces.load_fen(POS), "w", log=True)
+t1 = time()
+print(f"Time taken: {t1 - t0} s")

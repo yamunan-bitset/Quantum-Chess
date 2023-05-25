@@ -8,9 +8,9 @@ To do testing, do the following changes in `Perft_test/test.py`:
 27   POS = pos5
 28   #############
 ```
-Then, to run the program, execute `Perft_test/test.py` from `..`, or simply:
+Then, to run the program, execute `test.py`:
 ```
-python3 ../Perft_test/test.py
+python3 test.py
 ```
 Once the program is over, find the line with the node results in:
 ```

@@ -3,20 +3,36 @@ import pygame
 
 from . import Analysis
 
-piece_imgs = [
-    pygame.image.load(os.path.join("texture", "black", "pawn.png")),    # 0
-    pygame.image.load(os.path.join("texture", "black", "rook.png")),    # 1
-    pygame.image.load(os.path.join("texture", "black", "knight.png")),  # 2
-    pygame.image.load(os.path.join("texture", "black", "bishop.png")),  # 3
-    pygame.image.load(os.path.join("texture", "black", "king.png")),    # 4
-    pygame.image.load(os.path.join("texture", "black", "queen.png")),   # 5
-    pygame.image.load(os.path.join("texture", "white", "pawn.png")),    # 6
-    pygame.image.load(os.path.join("texture", "white", "rook.png")),    # 7
-    pygame.image.load(os.path.join("texture", "white", "knight.png")),  # 8
-    pygame.image.load(os.path.join("texture", "white", "bishop.png")),  # 9
-    pygame.image.load(os.path.join("texture", "white", "king.png")),    # 10
-    pygame.image.load(os.path.join("texture", "white", "queen.png")),   # 11
-]
+try:
+    piece_imgs = [
+        pygame.image.load(os.path.join("texture", "black", "pawn.png")),    # 0
+        pygame.image.load(os.path.join("texture", "black", "rook.png")),    # 1
+        pygame.image.load(os.path.join("texture", "black", "knight.png")),  # 2
+        pygame.image.load(os.path.join("texture", "black", "bishop.png")),  # 3
+        pygame.image.load(os.path.join("texture", "black", "king.png")),    # 4
+        pygame.image.load(os.path.join("texture", "black", "queen.png")),   # 5
+        pygame.image.load(os.path.join("texture", "white", "pawn.png")),    # 6
+        pygame.image.load(os.path.join("texture", "white", "rook.png")),    # 7
+        pygame.image.load(os.path.join("texture", "white", "knight.png")),  # 8
+        pygame.image.load(os.path.join("texture", "white", "bishop.png")),  # 9
+        pygame.image.load(os.path.join("texture", "white", "king.png")),    # 10
+        pygame.image.load(os.path.join("texture", "white", "queen.png")),   # 11
+    ]
+except:
+    piece_imgs = [
+        pygame.image.load(os.path.join("..", "texture", "black", "pawn.png")),   # 0
+        pygame.image.load(os.path.join("..", "texture", "black", "rook.png")),   # 1
+        pygame.image.load(os.path.join("..", "texture", "black", "knight.png")), # 2
+        pygame.image.load(os.path.join("..", "texture", "black", "bishop.png")), # 3
+        pygame.image.load(os.path.join("..", "texture", "black", "king.png")),   # 4
+        pygame.image.load(os.path.join("..", "texture", "black", "queen.png")),  # 5
+        pygame.image.load(os.path.join("..", "texture", "white", "pawn.png")),   # 6
+        pygame.image.load(os.path.join("..", "texture", "white", "rook.png")),   # 7
+        pygame.image.load(os.path.join("..", "texture", "white", "knight.png")), # 8
+        pygame.image.load(os.path.join("..", "texture", "white", "bishop.png")), # 9
+        pygame.image.load(os.path.join("..", "texture", "white", "king.png")),   # 10
+        pygame.image.load(os.path.join("..", "texture", "white", "queen.png")),  # 11
+    ]
 
 
 class Pieces:

@@ -1,6 +1,7 @@
 import socket
 import pickle
 import os
+import sys
 import pygame
 
 from Chess import Pieces, Board
@@ -20,8 +21,10 @@ board = Board(screen)
 startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 pieces = Pieces(screen, startpos)
 
+m_colour = sys.argv[1]
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.settimeout(2)
+s.settimeout(10)
 s.connect(("127.0.0.1", 1729))
 
 
@@ -44,7 +47,7 @@ ignore = False
 prev_recv_move = None
 
 while True:
-    if pieces.analysis.turn == "b":
+    if pieces.analysis.turn == m_colour:
         event = pygame.event.wait()
         if event.type == pygame.QUIT:
             break

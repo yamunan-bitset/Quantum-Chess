@@ -1,20 +1,10 @@
 import socket
 import pickle
-import os
-import pygame
 
 
 import threading
 
 socket.getaddrinfo("127.0.0.1", 1729)
-pygame.init()
-
-logo = pygame.image.load(os.path.join("texture", "black", "knight.png"))
-pygame.display.set_icon(logo)
-pygame.display.set_caption("Chess Server")
-screen = pygame.display.set_mode((1000, 800))
-screen.fill((36, 34, 30))
-pygame.display.update()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(("127.0.0.1", 1729))

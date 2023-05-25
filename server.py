@@ -1,12 +1,14 @@
 import socket
-socket.getaddrinfo("127.0.0.1", 1729)
-
 import pickle
 import os
 import pygame
-pygame.init()
 
 from Chess import Pieces, Board
+from receiver_thread import Receiver
+
+
+socket.getaddrinfo("127.0.0.1", 1729)
+pygame.init()
 
 
 logo = pygame.image.load(os.path.join("texture", "black", "knight.png"))
@@ -20,7 +22,6 @@ board = Board(screen)
 startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 pieces = Pieces(screen, startpos)
 
-
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(("127.0.0.1", 1729))
 s.listen(1)
@@ -32,14 +33,8 @@ def send(move):
     client_socket.send(pickle.dumps(move))
 
 
-def recv():
-    try:
-        move = pickle.loads(client_socket.recv(1024))
-    except:
-        return None
-    else:
-        return move
-
+recv_thread = Receiver(client_socket)
+recv_thread.start()
 
 ignore = False
 
@@ -77,8 +72,7 @@ while True:
                     ignore = False
 
     else:
-        s.settimeout(0.1)
-        move = recv()
+        move = recv_thread.move
         if move is not None:
             print(f"Received {move=}")
 
@@ -87,6 +81,10 @@ while True:
             board.auto_drop(move[2], move[3])
             pieces.drop(move[2], move[3], lambda colour: move[4])
 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                break
+
     screen.fill((36, 34, 30))
     board.render(pieces.analysis)
     pieces.mouse_pos = pygame.mouse.get_pos()
@@ -94,4 +92,6 @@ while True:
     pieces.render()
     pygame.display.update()
 
+
+recv_thread.kill()
 s.close()

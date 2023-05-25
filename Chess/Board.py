@@ -51,7 +51,7 @@ class Board:
             self.screen.blit(self.font.render(letters[i], True, (183, 183, 183)), (i * 60 + 40, 500))
 
         if self.mouse_pos is not None:
-            x = floor(self.mouse_pos[0] / 60) * 60
+            x = floor((self.mouse_pos[0] - 15) / 60) * 60
             y = floor(self.mouse_pos[1] / 60) * 60
             if 0 <= x / 60 <= 7 and 0 <= y / 60 <= 7:
                 pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect(x + 15, y + 15, 60, 60), 2)
@@ -81,22 +81,24 @@ class Board:
             event = pygame.event.wait()
             pos = pygame.mouse.get_pos()
             x = floor((pos[0] - 15) / 60)
-            y = floor((pos[1] - 15) / 60)
+            y = floor((pos[1] - 30) / 60)
             if event.type == pygame.MOUSEBUTTONUP:
-                if x == 0 and y == 9:
+                if x == 0 and y == 8:
                     flag = "q"
                     break
-                elif x == 1 and y == 9:
+                elif x == 1 and y == 8:
                     flag = "r"
                     break
-                elif x == 2 and y == 9:
+                elif x == 2 and y == 8:
                     flag = "k"
                     break
-                elif x == 3 and y == 9:
+                elif x == 3 and y == 8:
                     flag = "b"
                     break
                 else:
                     continue
+            if event.type == pygame.QUIT:
+                exit(0)
 
             promotion_surface.fill((36, 34, 30))
 
@@ -127,8 +129,8 @@ class Board:
         return flag
 
     def select(self, pos, pieces):
-        x = floor(pos[1] / 60)
-        y = floor(pos[0] / 60)
+        x = floor((pos[1]) / 60)
+        y = floor((pos[0] - 15) / 60)
 
         if x < 0 or x > 7 or y < 0 or y > 7:
             return None, None
@@ -169,8 +171,8 @@ class Board:
             self.selected2 = None
 
     def drop(self, pos):
-        x = floor(pos[1] / 60)
-        y = floor(pos[0] / 60)
+        x = floor((pos[1] - 15) / 60)
+        y = floor((pos[0]) / 60)
 
         if x > 7 or y > 7 or x < 0 or y < 0:
             self.squares[self.selected[0]][self.selected[1]].selected = False

@@ -32,6 +32,8 @@ while True:
             if not pieces.select(*index):
                 board.unselect()
                 ignore = True
+            else:
+                ignore = False
     if event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:
             if not ignore:
@@ -40,9 +42,7 @@ while True:
                 pieces.mouse_pos = pos
                 index = board.drop(pos)
                 flag = None
-                if pieces.promotion:
-                    flag = board.get_promotions(pieces.analysis.turn)
-                if not pieces.drop(*index, flag=flag):
+                if not pieces.drop(*index, board.get_promotions):
                     board.unselect()
             else:
                 ignore = False

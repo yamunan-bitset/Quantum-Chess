@@ -6,6 +6,7 @@ class Analysis:
         self.board = board
 
         self.turn = "w"
+        self.flag = ""
 
         self.move_made = False
         self.prev_move = None
@@ -944,9 +945,19 @@ class Analysis:
         legal_moves = self.check_for_resolve_check(i, j, legal_moves)
         return legal_moves
 
-    def move(self, i0, j0, i1, j1, legal_moves=None, flag=None):
+    def move(self, i0, j0, i1, j1, legal_moves=None, promotion_f=None):
         if legal_moves is None:
             legal_moves = self.legal_moves(i0, j0)
+
+
+        for moves in legal_moves:
+            if moves[0] == i1 and moves[1] == j1:
+                if len(moves) == 3:
+                    if promotion_f is not None:
+                        self.flag = promotion_f(self.turn)
+                else:
+                    self.flag = ""
+                break
 
         if (i1, j1) in legal_moves:
             if self.board[i1][j1] == 1:
@@ -1077,7 +1088,7 @@ class Analysis:
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
-        elif (i1, j1, "pq") in legal_moves and flag == "q":
+        elif (i1, j1, "pq") in legal_moves and self.flag == "q":
             temp = self.board[i0][j0]
             self.board[i1][j1] = temp
             self.board[i0][j0] = None
@@ -1089,7 +1100,7 @@ class Analysis:
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
-        elif (i1, j1, "pr") in legal_moves and flag == "r":
+        elif (i1, j1, "pr") in legal_moves and self.flag == "r":
             temp = self.board[i0][j0]
             self.board[i1][j1] = temp
             self.board[i0][j0] = None
@@ -1101,7 +1112,7 @@ class Analysis:
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
-        elif (i1, j1, "pk") in legal_moves and flag == "k":
+        elif (i1, j1, "pk") in legal_moves and self.flag == "k":
             temp = self.board[i0][j0]
             self.board[i1][j1] = temp
             self.board[i0][j0] = None
@@ -1113,7 +1124,7 @@ class Analysis:
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
-        elif (i1, j1, "pb") in legal_moves and flag == "q":
+        elif (i1, j1, "pb") in legal_moves and self.flag == "q":
             temp = self.board[i0][j0]
             self.board[i1][j1] = temp
             self.board[i0][j0] = None

@@ -18,7 +18,7 @@ screen.fill((36, 34, 30))
 board = Board(screen)
 
 startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-pieces = Pieces(screen, startpos)
+pieces = Pieces(screen, "2k5/5PPP/8/8/8/8/8/4K3 w - - 0 1")
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,6 +57,8 @@ while True:
                 if not pieces.select(*index):
                     board.unselect()
                     ignore = True
+                else:
+                    ignore = False
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
                 if not ignore:
@@ -64,16 +66,13 @@ while True:
                     button = pygame.mouse
                     pieces.mouse_pos = pos
                     index = board.drop(pos)
-                    flag = None
-                    if pieces.promotion:
-                        flag = board.get_promotions(pieces.analysis.turn)
                     selected = pieces.selected
-                    if not pieces.drop(*index, flag=flag):
+                    if not pieces.drop(*index, board.get_promotions):
                         board.unselect()
                     else:
                         board.render(pieces.analysis)
                         pieces.render()
-                        send([*selected, *index, flag])
+                        send([*selected, *index, pieces.analysis.flag])
                 else:
                     ignore = False
 
@@ -86,7 +85,7 @@ while True:
             board.auto_select(move[0], move[1], pieces)
             pieces.select(move[0], move[1])
             board.auto_drop(move[2], move[3])
-            pieces.drop(move[2], move[3], flag=move[4])
+            pieces.drop(move[2], move[3], lambda colour: move[4])
 
     screen.fill((36, 34, 30))
     board.render(pieces.analysis)

@@ -18,7 +18,7 @@ screen.fill((36, 34, 30))
 board = Board(screen)
 
 startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-pieces = Pieces(screen, "2k5/5PPP/8/8/8/8/8/4K3 w - - 0 1")
+pieces = Pieces(screen, startpos)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.settimeout(2)

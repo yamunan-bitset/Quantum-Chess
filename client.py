@@ -30,18 +30,6 @@ s.settimeout(10)
 s.connect((SERVER_IP, 1729))
 
 
-def recv():
-    try:
-        move = pickle.loads(s.recv(1024))
-    except:
-        move = None
-    return move
-
-
-def send(move):
-    s.send(pickle.dumps(move))
-
-
 recv_thread = Receiver(s)
 recv_thread.start()
 
@@ -77,7 +65,7 @@ while True:
                     else:
                         board.render(pieces.analysis)
                         pieces.render()
-                        send([*selected, *index, pieces.analysis.flag])
+                        s.send(pickle.dumps([*selected, *index, pieces.analysis.flag]))
 
                 else:
                     ignore = False

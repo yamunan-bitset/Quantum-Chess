@@ -1,7 +1,6 @@
 import socket
 import pickle
 
-
 import threading
 
 socket.getaddrinfo("", 1729)
@@ -12,6 +11,7 @@ s.listen(2)
 
 clients = []
 turn = "w"
+
 
 def recv_send(turn):
     while True:

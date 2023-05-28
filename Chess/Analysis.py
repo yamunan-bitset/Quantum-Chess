@@ -886,34 +886,36 @@ class Analysis:
                 for y in range(8):
                     if board[x][y] is not None:
                         if board[move[0]][move[1]] == 10:
-                            if board[x][y] > 6:
+                            if board[x][y] < 6:
                                 opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
-                        else:
-                            if board[x][y] <= 6:
+                        elif board[move[0]][move[1]] == 4:
+                            if board[x][y] >= 6:
                                 opp_moves.append(self.pseudo_legal_moves(x, y, board=board, ignore_turn=True))
-            if "w0-0" in move:
-                for m in opp_moves:
-                    if (7, 4) in m or (7, 5) in m or (7, 6) in m:
-                        if move in moves:
-                            illegal.append(move)
 
-            elif "w0-0-0" in move:
-                for m in opp_moves:
-                    if (7, 4) in m or (7, 3) in m or (7, 2) in m or (7, 1) in m:
-                        if move in moves:
-                            illegal.append(move)
+            if board[move[0]][move[1]] == 10:
+                if "w0-0" in move:
+                    for m in opp_moves:
+                        if (7, 4) in m or (7, 5) in m or (7, 6) in m:
+                            if move in moves:
+                                illegal.append(move)
 
-            elif "b0-0" in move:
-                for m in opp_moves:
-                    if (0, 4) in m or (0, 5) in m or (0, 6) in m:
-                        if move in moves:
-                            illegal.append(move)
+                elif "w0-0-0" in move:
+                    for m in opp_moves:
+                        if (7, 4) in m or (7, 3) in m or (7, 2) in m or (7, 1) in m:
+                            if move in moves:
+                                illegal.append(move)
+            else:
+                if "b0-0" in move:
+                    for m in opp_moves:
+                        if (0, 4) in m or (0, 5) in m or (0, 6) in m:
+                            if move in moves:
+                                illegal.append(move)
 
-            elif "b0-0-0" in move:
-                for m in opp_moves:
-                    if (0, 4) in m or (0, 3) in m or (0, 2) in m or (0, 1) in m:
-                        if move in moves:
-                            illegal.append(move)
+                elif "b0-0-0" in move:
+                    for m in opp_moves:
+                        if (0, 4) in m or (0, 3) in m or (0, 2) in m or (0, 1) in m:
+                            if move in moves:
+                                illegal.append(move)
 
         for move in illegal:
             if move in moves:
@@ -943,6 +945,7 @@ class Analysis:
         legal_moves = self.pseudo_legal_moves(i, j, ignore_turn=ignore_turn)
         legal_moves = self.check_for_castle(legal_moves)
         legal_moves = self.check_for_resolve_check(i, j, legal_moves)
+
         return legal_moves
 
     def move(self, i0, j0, i1, j1, legal_moves=None, promotion_f=None):
@@ -953,31 +956,21 @@ class Analysis:
         for moves in legal_moves:
             if moves[0] == i1 and moves[1] == j1:
                 if len(moves) == 3:
-                    if promotion_f is not None:
-                        self.flag = promotion_f(self.turn)
+                    if "p" in moves[2] and "e" not in moves[2]:
+                        if promotion_f is not None:
+                            self.flag = promotion_f(self.turn)
+                    else:
+                        if moves[2] == "b0-0":
+                            print("Allowed")
+                        self.flag = ""
                 else:
                     self.flag = ""
                 break
 
         if (i1, j1) in legal_moves:
-            if self.board[i1][j1] == 1:
-                if i1 == 0 and j1 == 0:
-                    self.b_rook2_moved = True
-                elif i1 == 0 and j1 == 7:
-                    self.b_rook1_moved = True
-            if self.board[i1][j1] == 7:
-                if i1 == 7 and j1 == 0:
-                    self.w_rook2_moved = True
-                elif i1 == 7 and j1 == 7:
-                    self.w_rook1_moved = True
-
             temp = self.board[i0][j0]
             self.board[i1][j1] = temp
             self.board[i0][j0] = None
-            if self.board[i1][j1] == 0 and i1 == 7:
-                self.board[i1][j1] = 5
-            if self.board[i1][j1] == 6 and i1 == 0:
-                self.board[i1][j1] = 11
 
             if self.board[i1][j1] == 1:
                 if i0 == 0 and j0 == 0:
@@ -1002,7 +995,7 @@ class Analysis:
                     self.b_king_moved = True
 
             if self.board[i1][j1] == 10:
-                if not self.b_king_moved:
+                if not self.w_king_moved:
                     self.w_king_moved = True
 
             self.prev_move = (i0, j0, i1, j1)
@@ -1039,7 +1032,7 @@ class Analysis:
             self.board[0][6] = 4
             self.board[0][7] = None
 
-            self.b_rook2_moved = True
+            self.b_rook1_moved = True
             self.b_king_moved = True
 
             self.prev_move = (i0, j0, i1, j1)

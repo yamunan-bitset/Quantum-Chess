@@ -7,7 +7,9 @@ import pygame
 from Chess import Pieces, Board
 from receiver_thread import Receiver
 
-socket.getaddrinfo("127.0.0.1", 1729)
+SERVER_IP = "127.0.0.1"
+
+socket.getaddrinfo(SERVER_IP, 1729)
 pygame.init()
 
 logo = pygame.image.load(os.path.join("texture", "black", "knight.png"))
@@ -25,7 +27,7 @@ m_colour = sys.argv[1]
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.settimeout(10)
-s.connect(("127.0.0.1", 1729))
+s.connect((SERVER_IP, 1729))
 
 
 def recv():

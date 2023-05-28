@@ -4,10 +4,10 @@ import pickle
 
 import threading
 
-socket.getaddrinfo("127.0.0.1", 1729)
+socket.getaddrinfo("", 1729)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(("127.0.0.1", 1729))
+s.bind(("", 1729))
 s.listen(2)
 
 clients = []

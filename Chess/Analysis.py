@@ -960,8 +960,6 @@ class Analysis:
                         if promotion_f is not None:
                             self.flag = promotion_f(self.turn)
                     else:
-                        if moves[2] == "b0-0":
-                            print("Allowed")
                         self.flag = ""
                 else:
                     self.flag = ""

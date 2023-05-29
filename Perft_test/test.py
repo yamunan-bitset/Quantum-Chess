@@ -3,7 +3,7 @@ import os
 import pygame
 pygame.init()
 
-from time import time
+from time import time, sleep
 from copy import deepcopy
 
 sys.path.insert(0, "..")
@@ -27,8 +27,8 @@ pos5 = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"
 pos6 = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"
 
 #######
-DEPTH = 3
-POS = startpos
+DEPTH = 4
+POS = pos6
 #######
 
 pieces = Pieces(screen, POS)
@@ -64,7 +64,8 @@ def depth_test(n, mboard, turn, log=False):
         board.render(pieces.analysis)
         pieces.render()
         pygame.display.update()
-        # pygame.event.wait()
+        # pygame.time.wait(1000)
+        if log: print(nodes)
         nodes += depth_test(n - 1, mboard, "b" if turn == "w" else "w")
         mboard = _board
         board.board = _board
@@ -78,6 +79,9 @@ def depth_test(n, mboard, turn, log=False):
 
 
 screen.fill((36, 34, 30))
+
+pieces.analysis.w_king_moved = True
+pieces.analysis.b_king_moved = True
 
 t0 = time()
 depth_test(DEPTH, Pieces.load_fen(POS), "w", log=True)

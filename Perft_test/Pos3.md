@@ -6,6 +6,9 @@
 
 ## PyChess results:
 ```
+14
+191
+2810
 ```
 
 ## Actual results:

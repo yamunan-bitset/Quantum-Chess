@@ -17,6 +17,12 @@ class Board:
 
         self.legal = []
 
+        self.draw = False
+        self.white_offers_draw = False
+        self.black_offers_draw = False
+        self.white_resign = False
+        self.black_resign = False
+
         for i in range(8):
             self.squares.append([])
             for j in range(8):
@@ -71,6 +77,24 @@ class Board:
         if analysis.stale_mate:
             self.screen.blit(self.font.render("Stale mate", True, (183, 183, 183)), (500, 50))
             self.screen.blit(self.font.render("Draw 1/2-1/2", True, (183, 183, 183)), (500, 75))
+
+        if self.white_offers_draw:
+            self.screen.blit(self.font.render("White offers draw", True, (183, 183, 183)), (500, 100))
+
+        if self.black_offers_draw:
+            self.screen.blit(self.font.render("Black offers draw", True, (183, 183, 183)), (500, 125))
+
+        if self.draw or (self.white_offers_draw and self.black_offers_draw):
+            self.screen.blit(self.font.render("Draw offer accepted", True, (183, 183, 183)), (500, 50))
+            self.screen.blit(self.font.render("Draw 1/2-1/2", True, (183, 183, 183)), (500, 75))
+
+        if self.white_resign:
+            self.screen.blit(self.font.render("White resigned", True, (183, 183, 183)), (500, 50))
+            self.screen.blit(self.font.render("Black won, 0-1", True, (183, 183, 183)), (500, 75))
+
+        if self.black_resign:
+            self.screen.blit(self.font.render("Black resigned", True, (183, 183, 183)), (500, 50))
+            self.screen.blit(self.font.render("White won, 1-0", True, (183, 183, 183)), (500, 75))
 
     def get_promotions(self, colour):
         flag = None

@@ -12,34 +12,26 @@ s.listen(2)
 clients = []
 turn = "w"
 
-
-def recv_send(turn):
+def recv_send():
     while True:
-        if turn == "w":
-            if len(clients) % 2 == 0:
-                for i in range(0, len(clients), 2):
-                    try:
-                        move = clients[i].recv(1024)
-                        recv = pickle.loads(move)
-                        print(f"Received {recv=}")
-                        clients[i + 1].send(move)
-                        print(f"Sent {recv=}")
-                        turn = "b"
-                    except:
-                        continue
-        else:
-            if len(clients) % 2 == 0:
-                for i in range(0, len(clients), 2):
-                    try:
-                        move = clients[i + 1].recv(1024)
-                        recv = pickle.loads(move)
-                        print(f"Received {recv=}")
-                        clients[i].send(move)
-                        print(f"Sent {recv=}")
-                        turn = "w"
-                    except:
-                        continue
-
+        if len(clients) % 2 == 0:
+            for i in range(0, len(clients), 2):
+                try:
+                    move = clients[i].recv(1024)
+                    recv = pickle.loads(move)
+                    print(f"Received {recv=}")
+                    clients[i + 1].send(move)
+                    print(f"Sent {recv=}")
+                except:
+                    continue
+                try:
+                    move = clients[i + 1].recv(1024)
+                    recv = pickle.loads(move)
+                    print(f"Received {recv=}")
+                    clients[i].send(move)
+                    print(f"Sent {recv=}")
+                except:
+                    continue
 
 def connect():
     print("Server listening")
@@ -47,7 +39,7 @@ def connect():
     print(f"{client.__str__()=} joined Server at {addr=}")
     clients.append(client)
 
-    thread = threading.Thread(target=recv_send, args=(turn,))
+    thread = threading.Thread(target=recv_send, args=())
     thread.start()
 
 

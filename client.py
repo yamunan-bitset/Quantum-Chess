@@ -15,7 +15,6 @@ pygame.init()
 
 logo = pygame.image.load(os.path.join("texture", "black", "knight.png"))
 pygame.display.set_icon(logo)
-pygame.display.set_caption("Chess Analysis Client")
 screen = pygame.display.set_mode((1000, 800))
 screen.fill((36, 34, 30))
 
@@ -34,6 +33,8 @@ s.settimeout(10)
 s.connect((SERVER_IP, 1729))
 
 m_colour = pickle.loads(s.recv(1024))
+
+pygame.display.set_caption("Online Chess Client, Playing " + ("White" if m_colour == "w" else "Black"))
 
 recv_thread = Receiver(s)
 recv_thread.start()

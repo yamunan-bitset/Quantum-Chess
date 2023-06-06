@@ -7,7 +7,7 @@ from Widgets import Button, Label
 
 logo = pygame.image.load(os.path.join("texture", "black", "knight.png"))
 pygame.display.set_icon(logo)
-pygame.display.set_caption("Chess Analysis Client")
+pygame.display.set_caption("Chess Client")
 screen = pygame.display.set_mode((1000, 800))
 screen.fill((36, 34, 30))
 

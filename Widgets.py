@@ -37,3 +37,16 @@ class Button:
         size = self.font.size(self.text)
         self.surface.blit(self.font.render(self.text, True, self.text_colour), (self.rect.x + (self.rect.width/2) - (size[0] / 2), self.rect.y + (self.rect.height/2) - (size[1]/2)))
 
+
+class Label:
+    def __init__(self, surface, font, text, colour, x, y, width, height):
+        self.surface = surface
+        self.font = font
+        self.text = text
+        self.colour = colour
+        self.rect = pygame.Rect(x, y, width, height)
+
+    def render(self):
+        size = self.font.size(self.text)
+        self.surface.blit(self.font.render(self.text, True, self.colour), (self.rect.x + (self.rect.width / 2) - (size[0] / 2), self.rect.y + (self.rect.height / 2) - (size[1] / 2)))
+

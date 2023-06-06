@@ -6,7 +6,7 @@ import pygame
 
 from Chess import Pieces, Board
 from receiver_thread import Receiver
-from Buttons import Button
+from Widgets import Button
 
 SERVER_IP = "127.0.0.1"
 
@@ -27,12 +27,13 @@ resign = Button(screen, (50, 200, 100), (100, 200, 100), (50, 50, 100), board.fo
 startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 pieces = Pieces(screen, startpos)
 
-m_colour = sys.argv[1]
+#m_colour = sys.argv[1]
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.settimeout(10)
 s.connect((SERVER_IP, 1729))
 
+m_colour = pickle.loads(s.recv(1024))
 
 recv_thread = Receiver(s)
 recv_thread.start()

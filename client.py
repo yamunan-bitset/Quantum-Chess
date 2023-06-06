@@ -86,7 +86,7 @@ while True:
 
             if event.type == pygame.QUIT:
                 pygame.quit()
-                quit()
+                break
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     pieces.mouse_pos = pos
@@ -135,6 +135,13 @@ while True:
                     if recv_thread.resign_white:
                         board.white_resign = True
                         playing = False
+                    if recv_thread.aborted_white:
+                        board.white_aborted = True
+                        playing = False
+                    if recv_thread.aborted_black:
+                        board.black_aborted = True
+                        playing = False
+
                 else:
                     if move is not None:
                         print(f"Received {move=}")
@@ -166,14 +173,17 @@ while True:
 
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    break
     else:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                quit()
+                break
 
-    screen.fill((36, 34, 30))
+    try:
+        screen.fill((36, 34, 30))
+    except pygame.error:
+        break
     board.render(pieces.analysis)
     pieces.mouse_pos = pygame.mouse.get_pos()
     board.mouse_pos = pygame.mouse.get_pos()
@@ -181,3 +191,7 @@ while True:
     draw.render()
     resign.render()
     pygame.display.update()
+
+if playing:
+    s.send(pickle.dumps("abort_" + m_colour))
+quit()

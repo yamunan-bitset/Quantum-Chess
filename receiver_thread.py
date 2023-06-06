@@ -16,6 +16,8 @@ class Receiver(threading.Thread):
         self.offer_draw_white = False
         self.offer_draw_black = False
         self.draw = False
+        self.aborted_white = False
+        self.aborted_black = False
 
         self.move = None
         self.time = None
@@ -43,6 +45,10 @@ class Receiver(threading.Thread):
                     if self.offer_draw_black:
                         self.draw = True
                         self.quit = True
+                elif self.move == "abort_w":
+                    self.aborted_white = True
+                elif self.move == "abort_b":
+                    self.aborted_black = True
 
                 print(self.move)
             except:

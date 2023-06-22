@@ -1,37 +1,39 @@
 import os
 import pygame
 
+pygame.mixer.init()
+
 from . import Analysis
 
 try:
     piece_imgs = [
-        pygame.image.load(os.path.join("texture", "black", "pawn.png")),    # 0
-        pygame.image.load(os.path.join("texture", "black", "rook.png")),    # 1
+        pygame.image.load(os.path.join("texture", "black", "pawn.png")),  # 0
+        pygame.image.load(os.path.join("texture", "black", "rook.png")),  # 1
         pygame.image.load(os.path.join("texture", "black", "knight.png")),  # 2
         pygame.image.load(os.path.join("texture", "black", "bishop.png")),  # 3
-        pygame.image.load(os.path.join("texture", "black", "king.png")),    # 4
-        pygame.image.load(os.path.join("texture", "black", "queen.png")),   # 5
-        pygame.image.load(os.path.join("texture", "white", "pawn.png")),    # 6
-        pygame.image.load(os.path.join("texture", "white", "rook.png")),    # 7
+        pygame.image.load(os.path.join("texture", "black", "king.png")),  # 4
+        pygame.image.load(os.path.join("texture", "black", "queen.png")),  # 5
+        pygame.image.load(os.path.join("texture", "white", "pawn.png")),  # 6
+        pygame.image.load(os.path.join("texture", "white", "rook.png")),  # 7
         pygame.image.load(os.path.join("texture", "white", "knight.png")),  # 8
         pygame.image.load(os.path.join("texture", "white", "bishop.png")),  # 9
-        pygame.image.load(os.path.join("texture", "white", "king.png")),    # 10
-        pygame.image.load(os.path.join("texture", "white", "queen.png")),   # 11
+        pygame.image.load(os.path.join("texture", "white", "king.png")),  # 10
+        pygame.image.load(os.path.join("texture", "white", "queen.png")),  # 11
     ]
 except FileNotFoundError:
     try:
         piece_imgs = [
-            pygame.image.load(os.path.join("..", "texture", "black", "pawn.png")),   # 0
-            pygame.image.load(os.path.join("..", "texture", "black", "rook.png")),   # 1
-            pygame.image.load(os.path.join("..", "texture", "black", "knight.png")), # 2
-            pygame.image.load(os.path.join("..", "texture", "black", "bishop.png")), # 3
-            pygame.image.load(os.path.join("..", "texture", "black", "king.png")),   # 4
+            pygame.image.load(os.path.join("..", "texture", "black", "pawn.png")),  # 0
+            pygame.image.load(os.path.join("..", "texture", "black", "rook.png")),  # 1
+            pygame.image.load(os.path.join("..", "texture", "black", "knight.png")),  # 2
+            pygame.image.load(os.path.join("..", "texture", "black", "bishop.png")),  # 3
+            pygame.image.load(os.path.join("..", "texture", "black", "king.png")),  # 4
             pygame.image.load(os.path.join("..", "texture", "black", "queen.png")),  # 5
-            pygame.image.load(os.path.join("..", "texture", "white", "pawn.png")),   # 6
-            pygame.image.load(os.path.join("..", "texture", "white", "rook.png")),   # 7
-            pygame.image.load(os.path.join("..", "texture", "white", "knight.png")), # 8
-            pygame.image.load(os.path.join("..", "texture", "white", "bishop.png")), # 9
-            pygame.image.load(os.path.join("..", "texture", "white", "king.png")),   # 10
+            pygame.image.load(os.path.join("..", "texture", "white", "pawn.png")),  # 6
+            pygame.image.load(os.path.join("..", "texture", "white", "rook.png")),  # 7
+            pygame.image.load(os.path.join("..", "texture", "white", "knight.png")),  # 8
+            pygame.image.load(os.path.join("..", "texture", "white", "bishop.png")),  # 9
+            pygame.image.load(os.path.join("..", "texture", "white", "king.png")),  # 10
             pygame.image.load(os.path.join("..", "texture", "white", "queen.png")),  # 11
         ]
     except FileNotFoundError as e:
@@ -48,6 +50,13 @@ class Pieces:
 
         self.board = Pieces.load_fen(fen)
         self.analysis = Analysis(self.board)
+
+        self.move = pygame.mixer.Sound(os.path.join("sfx", "move-self.mp3"))
+        self.check = pygame.mixer.Sound(os.path.join("sfx", "move-check.mp3"))
+        self.castle = pygame.mixer.Sound(os.path.join("sfx", "castle.mp3"))
+        self.capture = pygame.mixer.Sound(os.path.join("sfx", "capture.mp3"))
+        self.promotion = pygame.mixer.Sound(os.path.join("sfx", "promote.mp3"))
+        self.game_end = pygame.mixer.Sound(os.path.join("sfx", "game-end.mp3"))
 
     @staticmethod
     def load_fen(fen):
@@ -88,8 +97,21 @@ class Pieces:
             self.selected = None
             if not self.analysis.move_made:
                 return False
+
+            if self.analysis.check_mate or self.analysis.stale_mate:
+                pygame.mixer.Sound.play(self.game_end)
+            elif self.analysis.b_king_in_check or self.analysis.w_king_in_check:
+                pygame.mixer.Sound.play(self.check)
+            elif self.analysis.promotion:
+                pygame.mixer.Sound.play(self.promotion)
+            elif self.analysis.captured:
+                pygame.mixer.Sound.play(self.capture)
+            elif self.analysis.castled:
+                pygame.mixer.Sound.play(self.castle)
+            else:
+                pygame.mixer.Sound.play(self.move)
+
             return True
 
         self.selected = None
         return False
-

@@ -24,6 +24,10 @@ class Analysis:
         self.check_mate = False
         self.stale_mate = False
 
+        self.promotion = False
+        self.captured = False
+        self.castled = False
+
         self.evaluation = 0
         self.evaluate()
 
@@ -869,8 +873,8 @@ class Analysis:
 
             for m in opp_moves:
                 if (i, j) in m or (i, j, "w0-0") in m or (i, j, "b0-0") in m or (i, j, "w0-0-0") in m or (
-                i, j, "b0-0-0") in m or (i, j, "epr") in m or (i, j, "epl") in m or (i, j, "pq") in m or (
-                i, j, "pr") in m or (i, j, "pb") in m or (i, j, "pk") in m:
+                        i, j, "b0-0-0") in m or (i, j, "epr") in m or (i, j, "epl") in m or (i, j, "pq") in m or (
+                        i, j, "pr") in m or (i, j, "pb") in m or (i, j, "pk") in m:
                     return True
 
         return False
@@ -952,6 +956,9 @@ class Analysis:
         if legal_moves is None:
             legal_moves = self.legal_moves(i0, j0)
 
+        self.promotion = False
+        self.captured = False
+        self.castled = False
 
         for moves in legal_moves:
             if moves[0] == i1 and moves[1] == j1:
@@ -1008,6 +1015,7 @@ class Analysis:
             self.w_rook2_moved = True
             self.w_king_moved = True
 
+            self.castled = True
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
@@ -1021,6 +1029,7 @@ class Analysis:
             self.w_rook1_moved = True
             self.w_king_moved = True
 
+            self.castled = True
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
@@ -1033,6 +1042,7 @@ class Analysis:
             self.b_rook1_moved = True
             self.b_king_moved = True
 
+            self.castled = True
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
@@ -1046,6 +1056,7 @@ class Analysis:
             self.b_rook2_moved = True
             self.b_king_moved = True
 
+            self.castled = True
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
@@ -1088,6 +1099,7 @@ class Analysis:
             if self.board[i1][j1] == 6 and i1 == 0:
                 self.board[i1][j1] = 11
 
+            self.promotion = True
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
@@ -1100,6 +1112,7 @@ class Analysis:
             if self.board[i1][j1] == 6 and i1 == 0:
                 self.board[i1][j1] = 7
 
+            self.promotion = True
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
@@ -1112,10 +1125,11 @@ class Analysis:
             if self.board[i1][j1] == 6 and i1 == 0:
                 self.board[i1][j1] = 8
 
+            self.promotion = True
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
-        elif (i1, j1, "pb") in legal_moves and self.flag == "q":
+        elif (i1, j1, "pb") in legal_moves and self.flag == "b":
             temp = self.board[i0][j0]
             self.board[i1][j1] = temp
             self.board[i0][j0] = None
@@ -1124,6 +1138,7 @@ class Analysis:
             if self.board[i1][j1] == 6 and i1 == 0:
                 self.board[i1][j1] = 9
 
+            self.promotion = True
             self.prev_move = (i0, j0, i1, j1)
             self.move_made = True
 
@@ -1178,6 +1193,10 @@ class Analysis:
                 else:
                     self.stale_mate = True
 
+        eval0 = self.evaluation
         self.evaluate()
+        if eval0 != self.evaluation:
+            if not self.promotion:
+                self.captured = True
 
         return self.board

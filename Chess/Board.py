@@ -112,9 +112,6 @@ class Board:
             self.screen.blit(self.font.render("Black left the match", True, (183, 183, 183)), (540, 50))
             self.screen.blit(self.font.render("White won, 1-0", True, (183, 183, 183)), (540, 75))
 
-
-
-
     def get_promotions(self, colour):
         flag = None
 

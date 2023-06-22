@@ -3,6 +3,7 @@ import pygame
 
 pygame.init()
 
+import analysis_board
 from Widgets import Button, Label
 
 logo = pygame.image.load(os.path.join("texture", "black", "knight.png"))
@@ -28,7 +29,7 @@ while True:
         break
 
     if analysis.handle_event(event, pos):
-        import analysis_board
+        analysis_board.main()
         error = False
     if online.handle_event(event, pos):
         try:

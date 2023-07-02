@@ -1,6 +1,31 @@
 from copy import deepcopy
 
 
+def partition(array, array2, low, high):
+    # choose the rightmost element as pivot
+    pivot = array[high]
+    i = low - 1
+
+    for j in range(low, high):
+        if array[j] <= pivot:
+            i = i + 1
+            (array[i], array[j]) = (array[j], array[i])
+            (array2[i], array2[j]) = (array2[j], array2[i])
+
+    (array[i + 1], array[high]) = (array[high], array[i + 1])
+    (array2[i + 1], array2[high]) = (array2[high], array2[i + 1])
+    return i + 1
+
+
+def quick_sort(array, array2, low, high):
+    if low < high:
+        pi = partition(array, array2, low, high)
+        quick_sort(array, array2, low, pi - 1)
+        quick_sort(array, array2, pi + 1, high)
+    array.reverse()
+    array2.reverse()
+
+
 class Analysis:
     def __init__(self, board):
         self.board = board
@@ -31,27 +56,156 @@ class Analysis:
         self.evaluation = 0
         self.evaluate()
 
-    def evaluate(self):
-        self.evaluation = 0
-        for i in self.board:
+    def evaluate(self, board=None):
+        default = False
+        if board is None:
+            board = self.board
+            default = True
+
+        evaluation = 0
+        for i in board:
             for j in i:
                 if j is not None:
-                    if j == 0:
-                        self.evaluation -= 1
-                    elif j == 1:
-                        self.evaluation -= 5
-                    elif j == 2 or j == 3:
-                        self.evaluation -= 3
-                    elif j == 5:
-                        self.evaluation -= 9
-                    elif j == 6:
-                        self.evaluation += 1
-                    elif j == 7:
-                        self.evaluation += 5
-                    elif j == 8 or j == 9:
-                        self.evaluation += 3
-                    elif j == 11:
-                        self.evaluation += 9
+                    evaluation += Analysis.get_value(j, negative=True)
+        if default:
+            self.evaluation = evaluation
+        return evaluation
+
+    @staticmethod
+    def get_value(piece, negative=False):
+        if piece == 0:
+            return 1
+        elif piece == 1:
+            return 5
+        elif piece == 2 or piece == 3:
+            return 3
+        elif piece == 5:
+            return 9
+        elif piece == 6:
+            if negative:
+                return -1
+            return 1
+        elif piece == 7:
+            if negative:
+                return -5
+            return 5
+        elif piece == 8 or piece == 9:
+            if negative:
+                return -3
+            return 3
+        elif piece == 11:
+            if negative:
+                return -9
+            return 9
+        else:
+            # king
+            return 0
+
+    def order_best_moves(self, legal_moves, board=None):
+        if board is None:
+            board = self.board
+
+        move_approx_ranks = [0] * len(legal_moves)
+        for i, move in enumerate(legal_moves):
+            moving_piece = board[move[0]][move[1]]
+            capture_piece = board[move[2][0]][move[2][1]]
+
+            if capture_piece is not None:
+                move_approx_ranks[i] += Analysis.get_value(capture_piece) * 10 - Analysis.get_value(moving_piece)
+            if len(move[2]) == 3:
+                if move[2][2][1] == "q":
+                    move_approx_ranks[i] += 9
+                elif move[2][2][1] == "r":
+                    move_approx_ranks[i] += 5
+                else:
+                    move_approx_ranks[i] += 3
+            # TODO: Added more constrains, eg low rank piece (pawn) attack square, ...
+
+        quick_sort(move_approx_ranks, legal_moves, 0, len(move_approx_ranks) - 1)
+
+    def search_captures(self, depth, alpha, beta, board=None):
+        if board is None:
+            board = self.board
+        _eval = self.evaluate(board=board)
+        if _eval >= beta:
+            return beta
+        if _eval > alpha:
+            alpha = _eval
+
+        if depth == 0:
+            return alpha
+
+        capture_moves = []
+        for x in range(8):
+            for y in range(8):
+                if board[x][y] is not None:
+                    if (self.turn == "w" and board[x][y] >= 6) or (self.turn == "b" and board[x][y] < 6):
+                        moves = self.legal_moves(x, y)
+                        if moves == []:
+                            continue
+                        for i in moves:
+                            _board = deepcopy(board)
+                            sum0 = 0
+                            for k in _board:
+                                for j in k:
+                                    if j is not None:
+                                        sum0 += j
+                            self.depth(x, y, i, board=_board)
+                            sum1 = 0
+                            for k in _board:
+                                for j in k:
+                                    if j is not None:
+                                        sum1 += j
+
+                            if sum1 != sum0:
+                                capture_moves.append((x, y, i))
+
+        self.order_best_moves(capture_moves, board=board)
+        for move in capture_moves:
+            _board = deepcopy(board)
+            self.depth(*move, board=_board)
+            _eval = -self.search_captures(depth - 1, -beta, -alpha)
+            if _eval >= beta:
+                return beta
+            if _eval > alpha:
+                alpha = _eval
+
+        return alpha
+
+
+    def find_best(self, depth, alpha, beta, board=None):
+        if board is None:
+            board = deepcopy(self.board)
+
+        legal_moves = []
+        for x in range(8):
+            for y in range(8):
+                if board[x][y] is not None:
+                    if (self.turn == "w" and board[x][y] >= 6) or (self.turn == "b" and board[x][y] < 6):
+                        moves = self.legal_moves(x, y)
+                        if moves == []:
+                            continue
+                        for i in moves:
+                            legal_moves.append((x, y, i))
+
+        if len(legal_moves) == 0:
+            return [None, None]
+        self.order_best_moves(legal_moves, board=board)
+        best_move = legal_moves[0]
+        if depth == 0:
+            return [self.search_captures(depth, alpha, beta, board=board), best_move]
+
+        for move in legal_moves:
+            _board = deepcopy(board)
+            self.depth(*move, board=_board)
+            _eval = -self.find_best(depth - 1, -beta, -alpha)[0]
+            if _eval >= beta:
+                return [beta, best_move]
+            if _eval > alpha:
+                alpha = _eval
+                best_move = move
+
+        return [alpha, best_move]
 
     def pseudo_legal_moves(self, i, j, board=None, ignore_turn=False):
         moves = []
@@ -959,6 +1113,11 @@ class Analysis:
         self.promotion = False
         self.captured = False
         self.castled = False
+        sum0 = 0
+        for i in self.board:
+            for j in i:
+                if j is not None:
+                    sum0 += j
 
         for moves in legal_moves:
             if moves[0] == i1 and moves[1] == j1:
@@ -1193,9 +1352,12 @@ class Analysis:
                 else:
                     self.stale_mate = True
 
-        eval0 = self.evaluation
-        self.evaluate()
-        if eval0 != self.evaluation:
+        sum1 = 0
+        for i in self.board:
+            for j in i:
+                if j is not None:
+                    sum1 += j
+        if sum0 != sum1:
             if not self.promotion:
                 self.captured = True
 

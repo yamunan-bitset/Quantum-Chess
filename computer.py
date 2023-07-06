@@ -44,7 +44,7 @@ def play(colour):
     board = Board(screen)
 
     startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-    pieces = Pieces(screen, "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2BPP3/5N2/PPP2PPP/RNBQ1RK1 b kq - 0 5")
+    pieces = Pieces(screen, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -")
 
     ignore = False
     playing = True

@@ -56,10 +56,13 @@ class Analysis:
         self.evaluation = 0
         self.evaluate()
 
-    def evaluate(self, board=None):
+    def evaluate(self, turn=None, board=None):
         default = False
         if board is None:
             board = self.board
+            default = True
+        if turn is None:
+            turn = self.turn
             default = True
 
         evaluation = 0
@@ -67,35 +70,78 @@ class Analysis:
             for j in i:
                 if j is not None:
                     evaluation += Analysis.get_value(j, negative=True)
+
+        evaluation += self.evaluate_endgame(evaluation, turn=turn, board=board)
+
         if default:
             self.evaluation = evaluation
         return evaluation
 
+    def evaluate_endgame(self, piece_sum, turn=None, board=None):
+        if board is None:
+            board = self.board
+        if turn is None:
+            turn = self.turn
+
+        evaluation = 0.0
+        opp_king = 4 if turn == "w" else 10
+        m_king = 4 if turn == "b" else 10
+        opp_rank = 0
+        opp_file = 0
+        m_rank = 0
+        m_file = 0
+        weightage = 0
+        for x, i in enumerate(board):
+            for y, j in enumerate(i):
+                if j is not None:
+                    if j == opp_king:
+                        opp_rank = x
+                        opp_file = y
+                    if j == m_king:
+                        m_rank = x
+                        m_file = y
+
+                    if turn == "w" and j < 6:
+                        weightage += j
+                    elif turn == "b" and j >= 6:
+                        weightage += j
+
+        evaluation += (max(3 - opp_file, opp_file - 4) + max(3 - opp_rank, opp_rank - 4)) / 100
+        evaluation += (14 - abs(m_file - opp_file) + abs(m_rank - opp_rank)) / 100
+
+        weightage = 100 / weightage
+        if piece_sum != 0:
+            weightage *= piece_sum/abs(piece_sum)
+        else:
+            weightage = 0
+
+        return evaluation * weightage
+
     @staticmethod
     def get_value(piece, negative=False):
         if piece == 0:
-            return 1
-        elif piece == 1:
-            return 5
-        elif piece == 2 or piece == 3:
-            return 3
-        elif piece == 5:
-            return 9
-        elif piece == 6:
             if negative:
                 return -1
             return 1
-        elif piece == 7:
+        elif piece == 1:
             if negative:
                 return -5
             return 5
-        elif piece == 8 or piece == 9:
+        elif piece == 2 or piece == 3:
             if negative:
                 return -3
             return 3
-        elif piece == 11:
+        elif piece == 5:
             if negative:
                 return -9
+            return 9
+        elif piece == 6:
+            return 1
+        elif piece == 7:
+            return 5
+        elif piece == 8 or piece == 9:
+            return 3
+        elif piece == 11:
             return 9
         else:
             # king
@@ -107,6 +153,9 @@ class Analysis:
 
         move_approx_ranks = [0] * len(legal_moves)
         for i, move in enumerate(legal_moves):
+            _board = deepcopy(board)
+            self.depth(*move, board=_board)
+            move_approx_ranks[i] = self.evaluate(board=_board)
             moving_piece = board[move[0]][move[1]]
             capture_piece = board[move[2][0]][move[2][1]]
 
@@ -149,13 +198,13 @@ class Analysis:
                             for k in _board:
                                 for j in k:
                                     if j is not None:
-                                        sum0 += j
+                                        sum0 += j + 1
                             self.depth(x, y, i, board=_board)
                             sum1 = 0
                             for k in _board:
                                 for j in k:
                                     if j is not None:
-                                        sum1 += j
+                                        sum1 += j + 1
 
                             if sum1 != sum0:
                                 capture_moves.append((x, y, i))
@@ -1117,7 +1166,7 @@ class Analysis:
         for i in self.board:
             for j in i:
                 if j is not None:
-                    sum0 += j
+                    sum0 += j + 1
 
         for moves in legal_moves:
             if moves[0] == i1 and moves[1] == j1:
@@ -1339,6 +1388,15 @@ class Analysis:
             for j in i:
                 white_list.append(j)
 
+        sum1 = 0
+        for i in self.board:
+            for j in i:
+                if j is not None:
+                    sum1 += j + 1
+        if sum0 != sum1:
+            if not self.promotion:
+                self.captured = True
+
         if self.turn == "w":
             if len(white_list) == 0:
                 if self.w_king_in_check:
@@ -1352,13 +1410,7 @@ class Analysis:
                 else:
                     self.stale_mate = True
 
-        sum1 = 0
-        for i in self.board:
-            for j in i:
-                if j is not None:
-                    sum1 += j
-        if sum0 != sum1:
-            if not self.promotion:
-                self.captured = True
+        if sum1 == 16:
+            self.stale_mate = True
 
         return self.board

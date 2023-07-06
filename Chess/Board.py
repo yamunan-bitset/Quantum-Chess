@@ -64,7 +64,8 @@ class Board:
             if 0 <= x / 60 <= 7 and 0 <= y / 60 <= 7:
                 pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect(x + 15, y + 15, 60, 60), 2)
 
-        self.screen.blit(self.font.render("Eval: " + str(float(analysis.evaluation)), True, (183, 183, 183)), (540, 15))
+        analysis.evaluate()
+        self.screen.blit(self.font.render("Eval: " + str(round(analysis.evaluation, 2)), True, (183, 183, 183)), (540, 15))
 
         if analysis.turn == "w":
             pygame.draw.circle(self.screen, (255, 255, 255), (520, 475), 10)

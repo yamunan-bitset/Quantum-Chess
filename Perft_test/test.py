@@ -11,13 +11,13 @@ from Chess import Pieces
 from Chess import Board
 
 
-logo = pygame.image.load(os.path.join("..", "texture", "black", "knight.png"))
-pygame.display.set_icon(logo)
-pygame.display.set_caption("Chess Analysis")
-screen = pygame.display.set_mode((1000, 800))
-screen.fill((36, 34, 30))
+#logo = pygame.image.load(os.path.join("..", "texture", "black", "knight.png"))
+#pygame.display.set_icon(logo)
+#pygame.display.set_caption("Chess Analysis")
+#screen = pygame.display.set_mode((1000, 800))
+#screen.fill((36, 34, 30))
 
-board = Board(screen)
+#board = Board(screen)
 
 startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 pos2 = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"
@@ -27,12 +27,12 @@ pos5 = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"
 pos6 = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"
 
 #######
-DEPTH = 2
+DEPTH = 5
 POS = startpos
 #######
 
 os.chdir("..")
-pieces = Pieces(screen, POS)
+pieces = Pieces(pygame.display.set_mode((1000, 800)), POS)
 
 
 def depth_test(n, mboard, turn, log=False):
@@ -58,18 +58,18 @@ def depth_test(n, mboard, turn, log=False):
     for move in legal_moves:
         _board = deepcopy(mboard)
         mboard = pieces.analysis.depth(*move, board=mboard)
-        board.board = mboard
-        pieces.board = mboard
+        #board.board = mboard
+        #pieces.board = mboard
         pieces.analysis.board = mboard
-        screen.fill((36, 34, 30))
-        board.render(pieces.analysis)
-        pieces.render()
-        pygame.display.update()
+        #screen.fill((36, 34, 30))
+        #board.render(pieces.analysis)
+        #pieces.render()
+        #pygame.display.update()
         # pygame.time.wait(1000)
         if log: print(nodes)
         nodes += depth_test(n - 1, mboard, "b" if turn == "w" else "w")
         mboard = _board
-        board.board = _board
+        #board.board = _board
         pieces.board = _board
         pieces.analysis.board = _board
 
@@ -79,7 +79,7 @@ def depth_test(n, mboard, turn, log=False):
     return nodes
 
 
-screen.fill((36, 34, 30))
+#screen.fill((36, 34, 30))
 
 pieces.analysis.w_king_moved = True
 pieces.analysis.b_king_moved = True

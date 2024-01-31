@@ -10,6 +10,7 @@ rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 400
 8902
 197281
+4865351
 ```
 
 ## Tested results:

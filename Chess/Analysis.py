@@ -1,5 +1,6 @@
 from copy import deepcopy
 from random import choice
+import pprint
 
 
 def partition(array, array2, low, high):
@@ -1181,6 +1182,19 @@ class Analysis:
                 else:
                     self.flag = ""
                 break
+
+        # TODO: Remove capture moves, caslte moves, en passant moves, check moves, etc. from legal_moves
+        superpos = None
+        if len(legal_moves) > 1:
+            while True:
+                superpos = choice(legal_moves)
+                if (i1, j1) not in superpos:
+                    break
+        
+            self.superpos[superpos[0]][superpos[1]] = self.board[i0][j0]
+            self.superpos[i0][j0] = None
+            pprint.pp(self.superpos)
+
 
         if (i1, j1) in legal_moves:
             temp = self.board[i0][j0]

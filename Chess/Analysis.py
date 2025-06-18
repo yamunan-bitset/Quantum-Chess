@@ -1,6 +1,5 @@
 from copy import deepcopy
 from random import choice
-import pprint
 
 
 def partition(array, array2, low, high):
@@ -1193,7 +1192,6 @@ class Analysis:
         
             self.superpos[superpos[0]][superpos[1]] = self.board[i0][j0]
             self.superpos[i0][j0] = None
-            pprint.pp(self.superpos)
 
 
         if (i1, j1) in legal_moves:

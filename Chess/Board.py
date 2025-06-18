@@ -37,8 +37,6 @@ class Board:
                 )
 
     def render(self, analysis):
-        print(analysis.board)
-        print(analysis.superpos)
         letters = "abcdefgh"
         numbers = "12345678"
 

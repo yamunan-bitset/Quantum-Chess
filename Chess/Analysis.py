@@ -1,4 +1,5 @@
 from copy import deepcopy
+from random import choice
 
 
 def partition(array, array2, low, high):
@@ -27,8 +28,9 @@ def quick_sort(array, array2, low, high):
 
 
 class Analysis:
-    def __init__(self, board):
+    def __init__(self, board, superpos):
         self.board = board
+        self.superpos = superpos
 
         self.turn = "w"
         self.flag = ""

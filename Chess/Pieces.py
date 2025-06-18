@@ -49,7 +49,8 @@ class Pieces:
         self.mouse_pos = None
 
         self.board = Pieces.load_fen(fen)
-        self.analysis = Analysis(self.board, Pieces.load_fen("7r/8/8/8/8/8/8/8 w HAha - 0 1"))
+        self.superpos = Pieces.load_fen("8/8/8/8/8/8/8/8 w HAha - 0 1")
+        self.analysis = Analysis(self.board, self.superpos)
 
         self.move = pygame.mixer.Sound(os.path.join("sfx", "move-self.mp3"))
         self.check = pygame.mixer.Sound(os.path.join("sfx", "move-check.mp3"))
@@ -82,7 +83,10 @@ class Pieces:
                         self.screen.blit(piece_imgs[self.board[i][j]], (j * 60 + 15, i * 60 + 15))
                     else:
                         self.screen.blit(piece_imgs[self.board[i][j]], (self.mouse_pos[0] - 30, self.mouse_pos[1] - 30))
+                if self.superpos[i][j] is not None:
+                    self.screen.blit(piece_imgs[self.superpos[i][j]], (j * 60 + 15, i * 60 + 15))
 
+                        
     def select(self, i, j):
         if i is None or j is None:
             return False
